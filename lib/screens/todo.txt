@@ -1,0 +1,6 @@
+scan screen
+api
+data -> last three scans saved
+profile screen -> delete data button, version, etc.
+make logo
+onboarding
