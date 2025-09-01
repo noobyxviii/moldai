@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tinytummies/screens/home.dart';
-import 'package:tinytummies/screens/scan.dart';
-import 'package:tinytummies/screens/profile.dart';
+import 'package:tinytummies/screens/app/home.dart';
+import 'package:tinytummies/screens/app/scan.dart';
+import 'package:tinytummies/screens/app/profile.dart';
 
 class AppFlow extends StatefulWidget {
   const AppFlow({super.key});

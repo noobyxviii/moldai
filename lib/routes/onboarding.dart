@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tinytummies/screens/onboarding/get_started.dart';
+import 'package:tinytummies/screens/onboarding/worries.dart';
 
 class OnboardingFlow extends StatefulWidget {
   const OnboardingFlow({super.key});
@@ -28,6 +30,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         },
         physics: const NeverScrollableScrollPhysics(),
         children: [
+          GetStartedScreen(controller: _pageController, pageIndex: _currentPage),
+          WorriesScreen(controller: _pageController, pageIndex: _currentPage)
         ],
       ),
     );
