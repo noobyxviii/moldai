@@ -21,25 +21,25 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
 
   final List<SlideData> slides = [
     SlideData(
-      image: 'assets/phone_1.png',
+      image: 'assets/visual_1.png',
       title: 'Scan Baby Food Instantly',
       subtitle:
           "Quickly check if a product is healthy and safe\nfor your little one with just a scan.",
     ),
     SlideData(
-      image: 'assets/phone_3.png',
+      image: 'assets/visual_2.png',
       title: 'Trusted & Unbiased Results',
       subtitle:
-          'Get clear, independent insights—no brand\ninfluence, only what’s best for your baby.',
+          "Get clear, independent insights—no brand\ninfluence, only what's best for your baby.",
     ),
     SlideData(
-      image: 'assets/phone_2.png',
+      image: 'assets/visual_3.png',
       title: "Understand\nWhat's Inside",
       subtitle:
-          'Understand ingredients, nutrition, and\nhow each food impacts your baby’s health.',
+          "Understand ingredients, nutrition, and\nhow each food impacts your baby's health.",
     ),
     SlideData(
-      image: 'assets/phone_2.png',
+      image: 'assets/visual_4.png',
       title: 'Track Daily\nNutrition',
       subtitle:
           'Monitor protein, carbs, fats, and vitamins\nto ensure balanced growth every day.',
@@ -77,7 +77,6 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                         // slides[index].image,
                         //  width: deviceWidth * 0.45,
                         //),
-                        Spacer(),
                         Stack(
                           alignment: Alignment.centerLeft,
                           children: [
@@ -129,9 +128,15 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                         ),
                         Spacer(),
                         Container(
-                          width: deviceWidth * 0.9,
-                          height: 400,
-                          color: Colors.black,
+                          width: 325,
+                          height: 350,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(slides[index].image),
+                              fit: BoxFit.contain,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                         ),
                         Spacer(),
                       ],

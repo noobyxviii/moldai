@@ -106,7 +106,7 @@ class _OnboardingScreenState extends State<WorriesScreen> {
                     child: Text(
                       "Hidden unhealthy ingredients",
                       style: GoogleFonts.poppins(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
@@ -139,7 +139,7 @@ class _OnboardingScreenState extends State<WorriesScreen> {
                     child: Text(
                       "Lack of proper nutrition",
                       style: GoogleFonts.poppins(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
@@ -172,7 +172,7 @@ class _OnboardingScreenState extends State<WorriesScreen> {
                     child: Text(
                       "Allergies or sensitivities",
                       style: GoogleFonts.poppins(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
@@ -205,7 +205,7 @@ class _OnboardingScreenState extends State<WorriesScreen> {
                     child: Text(
                       "I don't know what's good or bad",
                       style: GoogleFonts.poppins(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),

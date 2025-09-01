@@ -32,7 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(15),
           ),
           title: Text(
             'Delete All Data',
@@ -59,14 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-                widget.controller.animateToPage(
-                0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-              },
+              onPressed: () => Navigator.of(context).pop(true), // Fixed: Return true to confirm deletion
               child: Text(
                 'Delete',
                 style: GoogleFonts.poppins(
@@ -97,10 +90,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'All data deleted successfully',
                 style: GoogleFonts.poppins(),
               ),
-              backgroundColor: const Color.fromRGBO(63, 177, 151, 1),
+              backgroundColor: const Color.fromRGBO(63, 114, 66, 1),
             ),
           );
-          Navigator.of(context).pop();
+          
+          // Navigate to home screen after successful deletion
+          widget.controller.animateToPage(
+            widget.pageIndex - 2,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
         }
       } catch (e) {
         if (mounted) {
@@ -271,52 +270,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     
                     SizedBox(height: deviceWidth * 0.06),
                     
-                      GestureDetector(
-                        onTap: _deleteAllData,
-                        child: Container(
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: const Color.fromRGBO(255, 255, 255, 1),
-                              borderRadius: BorderRadius.all(Radius.circular(25)),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(deviceWidth * 0.05),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                spacing: deviceWidth * 0.05,
-                                children: [
-                                  Icon(
-                                    FontAwesomeIcons.solidTrashCan,
-                                    size: 35,
+                    GestureDetector(
+                      onTap: isLoading ? null : _deleteAllData, // Disable tap when loading
+                      child: Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: const Color.fromRGBO(255, 255, 255, 1),
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(deviceWidth * 0.05),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            spacing: deviceWidth * 0.05,
+                            children: [
+                              if (isLoading)
+                                const SizedBox(
+                                  width: 35,
+                                  height: 35,
+                                  child: CircularProgressIndicator(
                                     color: Color.fromRGBO(255, 125, 125, 1),
+                                    strokeWidth: 3,
                                   ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Delete Data",
-                                        style: GoogleFonts.poppins(
-                                          color: Color.fromRGBO(255, 125, 125, 1),
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w900,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Deletes all progress & data\nfrom your device.",
-                                        style: GoogleFonts.poppins(
-                                          color: Color.fromRGBO(255, 125, 125, 1),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
+                                )
+                              else
+                                const Icon(
+                                  FontAwesomeIcons.solidTrashCan,
+                                  size: 35,
+                                  color: Color.fromRGBO(255, 125, 125, 1),
+                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Delete Data",
+                                    style: GoogleFonts.poppins(
+                                      color: Color.fromRGBO(255, 125, 125, 1),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Deletes all progress & data\nfrom your device.",
+                                    style: GoogleFonts.poppins(
+                                      color: Color.fromRGBO(255, 125, 125, 1),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
+                            ],
                           ),
+                        ),
                       ),
+                    ),
+                    
                     const Spacer(),
                     
                     // App Info Container
@@ -324,7 +334,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: double.infinity,
                       decoration: const BoxDecoration(
                         color: Color.fromRGBO(255, 255, 255, 1),
-                        borderRadius: BorderRadius.all(Radius.circular(25)),
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
                       ),
                       child: Padding(
                         padding: EdgeInsets.all(deviceWidth * 0.05),

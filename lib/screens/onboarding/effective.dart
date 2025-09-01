@@ -21,7 +21,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
     final deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color.fromRGBO(243, 243, 243, 1),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(deviceWidth * 0.05),
@@ -37,15 +37,15 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                     children: [
                       Container(
                         width: deviceWidth * 0.9 - 120,
-                        height: 5,
+                        height: 7.5,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
-                          color: Color.fromRGBO(246, 246, 246, 1),
+                          color: Color.fromRGBO(230, 230, 230, 1),
                         ),
                       ),
                       Container(
-                        width: (deviceWidth * 0.9 - 120) * (5 / 10),
-                        height: 5,
+                        width: (deviceWidth * 0.9 - 120) * (5 / 7),
+                        height: 7.5,
                         decoration: BoxDecoration(
                           color: Colors.black,
                           borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -58,10 +58,10 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
 
               SizedBox(height: 25),
               Text(
-                'Achieve faster results by managing your GLP-1 effectively with Glupi.',
+                'Make confident choices for your little one with Totsy.',
                 textAlign: TextAlign.left,
                 style: GoogleFonts.poppins(
-                  fontSize: 25,
+                  fontSize: 30,
                   fontWeight: FontWeight.w500,
                   color: Colors.black,
                   height: 1.2,
@@ -72,7 +72,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
               Container(
                 width: deviceWidth * 0.9,
                 decoration: BoxDecoration(
-                  color: Color.fromRGBO(246, 246, 246, 1),
+                  color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(20)),
                 ),
                 child: Column(
@@ -92,7 +92,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                               width: 125,
                               height: 200,
                               decoration: BoxDecoration(
-                                color: Color.fromRGBO(255, 255, 255, 1),
+                                color: Color.fromRGBO(243, 243, 243, 1),
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
                                 ),
@@ -102,7 +102,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                                 children: [
                                   SizedBox(height: 15),
                                   Text(
-                                    "Without",
+                                    "Food #1",
                                     style: GoogleFonts.poppins(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w700,
@@ -122,7 +122,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                               ),
                               child: Center(
                                 child: Text(
-                                  "1+ Years",
+                                  "Low Nutrition",
                                   style: GoogleFonts.poppins(
                                     color: Colors.black,
                                     fontWeight: FontWeight.w500,
@@ -139,7 +139,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                               width: 125,
                               height: 200,
                               decoration: BoxDecoration(
-                                color: Color.fromRGBO(255, 255, 255, 1),
+                                color: Color.fromRGBO(243, 243, 243, 1),
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
                                 ),
@@ -149,7 +149,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                                 children: [
                                   SizedBox(height: 15),
                                   Text(
-                                    "Glupi",
+                                    "Food #2",
                                     style: GoogleFonts.poppins(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w700,
@@ -162,14 +162,14 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                               width: 125,
                               height: 150,
                               decoration: BoxDecoration(
-                                color: const Color.fromRGBO(255, 128, 140, 1),
+                                color: Color.fromRGBO(63, 114, 66, 1),
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
                                 ),
                               ),
                               child: Center(
                                 child: Text(
-                                  "See results within months",
+                                  "High in carbs, protein, fiber, and vitamins",
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
@@ -184,11 +184,12 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                     ),
                     SizedBox(height: 25),
                     Text(
-                      "Understand your side effects, track\nyour shots, and hit your weight-loss\ngoals effectively.",
+                      "Understand which food is the best\nfor your baby to support healthy growth.",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         color: Colors.black,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(height: 25),
@@ -198,7 +199,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
               Spacer(),
               SizedBox(
                 width: double.infinity,
-                height: 65,
+                height: 75,
                 child: ElevatedButton(
                   onPressed: () {
                     HapticFeedback.lightImpact();
@@ -213,7 +214,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(37.5),
                     ),
                   ),
                   child: Text(

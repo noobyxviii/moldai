@@ -1,4 +1,4 @@
-# tinytummies
+# totsy
 
 A new Flutter project.
 

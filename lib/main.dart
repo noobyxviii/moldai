@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:totsy/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'dart:io';
 import 'dart:math';
 import 'dart:async';
-import 'package:tinytummies/routes/app.dart';
-import 'package:tinytummies/routes/onboarding.dart';
+import 'package:totsy/routes/app.dart';
+import 'package:totsy/routes/onboarding.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +24,10 @@ void main() async {
   await SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.immersiveSticky,
     overlays: [],
+  );
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
   // Initialize user ID
@@ -54,7 +60,7 @@ Future<void> initializeRevenueCat() async {
     } else if (Platform.isIOS) {
       // Get this from RevenueCat Dashboard -> Project Settings -> API Keys -> App Store
       await Purchases.configure(
-        PurchasesConfiguration("appl_DFESKBObhZkFFbaOPFyHaJhTxbI")
+        PurchasesConfiguration("appl_YBeVIonpuhySbgozwVJCoxpftwQ")
           ..appUserID = userId.isNotEmpty ? userId : null,
       );
     } else {
@@ -261,7 +267,7 @@ class _AppInitializerState extends State<AppInitializer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1), // Match your app's theme
+      backgroundColor: Color.fromRGBO(243, 243, 243, 1), // Match your app's theme
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

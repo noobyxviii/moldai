@@ -1,4 +1,4 @@
-package com.example.tinytummies
+package com.example.totsy
 
 import io.flutter.embedding.android.FlutterActivity
 

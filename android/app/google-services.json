@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "594538097125",
+    "project_id": "totsy-aea16",
+    "storage_bucket": "totsy-aea16.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594538097125:android:2e07af132d96d03247e70c",
+        "android_client_info": {
+          "package_name": "app.totsy.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoLbKqydTJeHYzsp9Haqmi7J2nOmBvjxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

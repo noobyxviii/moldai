@@ -840,7 +840,7 @@ void _confirmResults() async {
           CustomPaint(painter: GridPainter(), size: Size.infinite),
           // Instruction text
           Positioned(
-            top: 100,
+            top: 175,
             left: 0,
             right: 0,
             child: Container(
@@ -1133,13 +1133,13 @@ void _confirmResults() async {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(63, 114, 66, 1),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Text(
                 'Retake',
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1152,7 +1152,7 @@ void _confirmResults() async {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(63, 177, 151, 1),
+                color: const Color.fromRGBO(63, 114, 66, 1),
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Text(
