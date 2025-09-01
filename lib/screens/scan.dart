@@ -1,6 +1,7 @@
+// ignore_for_file: unnecessary_import
+
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,6 +39,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
   // Baby food analysis results
   Map<String, dynamic>? _analysisResults;
   bool _showResults = false;
+  String? _capturedImagePath;
 
   // Baby data
   Map<String, dynamic>? _babyData;
@@ -60,7 +62,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
       setState(() {
         _debugMessage = "Loading baby data...";
       });
-      
+
       final prefs = await SharedPreferences.getInstance();
       final allergiesJson = prefs.getString('allergies');
       final age = prefs.getInt('age');
@@ -70,7 +72,9 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
         _babyData = {
           'age': age,
           'weight': weight,
-          'allergies': allergiesJson != null ? json.decode(allergiesJson) : <String>[],
+          'allergies': allergiesJson != null
+              ? json.decode(allergiesJson)
+              : <String>[],
           'gender': 'not_specified',
           'height': 70.0,
           'healthConditions': <String>[],
@@ -89,11 +93,16 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
           'healthConditions': <String>[],
         };
         setState(() {
-          _debugMessage = "Using default baby data (age: 12 months, weight: 10kg)";
+          _debugMessage =
+              "Using default baby data (age: 12 months, weight: 10kg)";
         });
       }
     } catch (e) {
-      print('Error loading baby data: $e');
+      if (kDebugMode) {
+        if (kDebugMode) {
+        print('Error loading baby data: $e');
+      }
+      }
       // Create fallback data
       _babyData = {
         'age': 12,
@@ -145,6 +154,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         if (e.toString().contains('permission') ||
             e.toString().contains('Permission')) {
@@ -159,11 +169,15 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
   }
 
   Future<void> _captureAndAnalyze() async {
-    print("🔥 _captureAndAnalyze called!"); // Debug print
-    
+    if (kDebugMode) {
+      print("🔥 _captureAndAnalyze called!");
+    } // Debug print
+
     // Check camera controller
     if (_cameraController == null) {
-      print("❌ Camera controller is null");
+      if (kDebugMode) {
+        print("❌ Camera controller is null");
+      }
       setState(() {
         _errorMessage = "Camera controller is null";
         _debugMessage = "Camera controller not initialized";
@@ -172,7 +186,9 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
     }
 
     if (!_cameraController!.value.isInitialized) {
-      print("❌ Camera is not initialized");
+      if (kDebugMode) {
+        print("❌ Camera is not initialized");
+      }
       setState(() {
         _errorMessage = "Camera is not initialized";
         _debugMessage = "Camera not ready";
@@ -182,15 +198,22 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
 
     // Check baby data
     if (_babyData == null) {
-      print("❌ Baby data is null");
+      if (kDebugMode) {
+        print("❌ Baby data is null");
+      }
       setState(() {
-        _errorMessage = 'Baby data not found. Please set up your baby profile first.';
+        _errorMessage =
+            'Baby data not found. Please set up your baby profile first.';
         _debugMessage = "No baby data available";
       });
       return;
     }
 
-    print("✅ All checks passed, starting capture process");
+    if (kDebugMode) {
+      if (kDebugMode) {
+      print("✅ All checks passed, starting capture process");
+    }
+    }
     setState(() {
       _isProcessing = true;
       _errorMessage = null;
@@ -199,9 +222,13 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
 
     try {
       // Capture image
-      print("📸 Taking picture...");
+      if (kDebugMode) {
+        print("📸 Taking picture...");
+      }
       final XFile image = await _cameraController!.takePicture();
-      print("✅ Picture taken: ${image.path}");
+      if (kDebugMode) {
+        print("✅ Picture taken: ${image.path}");
+      }
 
       // Add haptic feedback
       HapticFeedback.mediumImpact();
@@ -217,27 +244,37 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
       }
 
       final fileSize = await file.length();
-      print("📁 Image file size: $fileSize bytes");
+      if (kDebugMode) {
+        print("📁 Image file size: $fileSize bytes");
+      }
 
       // Send to Cloudflare Worker for analysis
-      print("🌐 Sending to API...");
+      if (kDebugMode) {
+        print("🌐 Sending to API...");
+      }
       final results = await _analyzeBabyFood(file);
-      print("✅ API response received");
+      if (kDebugMode) {
+        print("✅ API response received");
+      }
 
       // Save the scan result and image
-      await _saveScanResult(results, image.path);
+      final savedImagePath = await _saveScanResult(results, image.path);
 
       setState(() {
         _analysisResults = results;
+        _capturedImagePath = savedImagePath;
         _showResults = true;
         _isProcessing = false;
         _debugMessage = "Analysis completed successfully";
       });
 
-      print("✅ Analysis completed and UI updated");
-
+      if (kDebugMode) {
+        print("✅ Analysis completed and UI updated");
+      }
     } catch (e) {
-      print("❌ Error in capture and analyze: $e");
+      if (kDebugMode) {
+        print("❌ Error in capture and analyze: $e");
+      }
       setState(() {
         _errorMessage = 'Failed to analyze food: ${e.toString()}';
         _isProcessing = false;
@@ -251,22 +288,29 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
         'https://curly-morning-0115.xviii2008.workers.dev/analyze-baby-food';
 
     try {
-      print("🔗 Connecting to: $cloudflareWorkerUrl");
-      
+      if (kDebugMode) {
+        print("🔗 Connecting to: $cloudflareWorkerUrl");
+      }
+
       // Validate image file first
       if (!await imageFile.exists()) {
         throw Exception('Image file does not exist at path: ${imageFile.path}');
       }
-      
+
       final imageBytes = await imageFile.readAsBytes();
-      print("📊 Image size: ${imageBytes.length} bytes");
-      
+      if (kDebugMode) {
+        print("📊 Image size: ${imageBytes.length} bytes");
+      }
+
       if (imageBytes.isEmpty) {
         throw Exception('Image file is empty');
       }
-      
-      if (imageBytes.length > 10 * 1024 * 1024) { // 10MB limit
-        throw Exception('Image file too large: ${(imageBytes.length / (1024 * 1024)).toStringAsFixed(1)}MB');
+
+      if (imageBytes.length > 10 * 1024 * 1024) {
+        // 10MB limit
+        throw Exception(
+          'Image file too large: ${(imageBytes.length / (1024 * 1024)).toStringAsFixed(1)}MB',
+        );
       }
 
       // Validate image format by checking magic bytes
@@ -274,77 +318,118 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
       if (imageBytes.length >= 2) {
         if (imageBytes[0] == 0xFF && imageBytes[1] == 0xD8) {
           imageFormat = 'JPEG';
-        } else if (imageBytes.length >= 8 && 
-                   imageBytes[0] == 0x89 && imageBytes[1] == 0x50 && 
-                   imageBytes[2] == 0x4E && imageBytes[3] == 0x47) {
+        } else if (imageBytes.length >= 8 &&
+            imageBytes[0] == 0x89 &&
+            imageBytes[1] == 0x50 &&
+            imageBytes[2] == 0x4E &&
+            imageBytes[3] == 0x47) {
           imageFormat = 'PNG';
         }
       }
-      print("📷 Image format detected: $imageFormat");
+      if (kDebugMode) {
+        print("📷 Image format detected: $imageFormat");
+      }
 
       // Test connection first
       try {
-        final testResponse = await http.get(Uri.parse(cloudflareWorkerUrl)).timeout(
-          const Duration(seconds: 5),
-        );
-        print("🌐 Test connection status: ${testResponse.statusCode}");
-        print("🌐 Test response body: ${testResponse.body}");
+        final testResponse = await http
+            .get(Uri.parse(cloudflareWorkerUrl))
+            .timeout(const Duration(seconds: 5));
+        if (kDebugMode) {
+          print("🌐 Test connection status: ${testResponse.statusCode}");
+        }
+        if (kDebugMode) {
+          print("🌐 Test response body: ${testResponse.body}");
+        }
       } catch (e) {
-        print("⚠️ Test connection failed: $e");
+        if (kDebugMode) {
+          print("⚠️ Test connection failed: $e");
+        }
       }
 
       // Method 1: Try multipart/form-data (original approach)
-      print("📤 Trying multipart/form-data request...");
+      if (kDebugMode) {
+        print("📤 Trying multipart/form-data request...");
+      }
       try {
-        final multipartResult = await _sendMultipartRequest(cloudflareWorkerUrl, imageBytes, _babyData!);
+        final multipartResult = await _sendMultipartRequest(
+          cloudflareWorkerUrl,
+          imageBytes,
+          _babyData!,
+        );
         return multipartResult;
       } catch (e) {
-        print("❌ Multipart request failed: $e");
+        if (kDebugMode) {
+          print("❌ Multipart request failed: $e");
+        }
       }
 
       // Method 2: Try Base64 encoded JSON request
-      print("📤 Trying Base64 JSON request...");
+      if (kDebugMode) {
+        print("📤 Trying Base64 JSON request...");
+      }
       try {
-        final base64Result = await _sendBase64Request(cloudflareWorkerUrl, imageBytes, _babyData!);
+        final base64Result = await _sendBase64Request(
+          cloudflareWorkerUrl,
+          imageBytes,
+          _babyData!,
+        );
         return base64Result;
       } catch (e) {
-        print("❌ Base64 request failed: $e");
+        if (kDebugMode) {
+          print("❌ Base64 request failed: $e");
+        }
       }
 
       // Method 3: Try simple JSON with smaller image
-      print("📤 Trying compressed Base64 request...");
+      if (kDebugMode) {
+        print("📤 Trying compressed Base64 request...");
+      }
       try {
         // Compress image if it's too large
         Uint8List compressedBytes = imageBytes;
-        if (imageBytes.length > 1024 * 1024) { // 1MB
+        if (imageBytes.length > 1024 * 1024) {
+          // 1MB
           // Simple compression by reducing quality (this is a basic approach)
-          print("🗜️ Compressing large image...");
-          compressedBytes = imageBytes; // You might want to implement actual compression here
+          if (kDebugMode) {
+            print("🗜️ Compressing large image...");
+          }
+          compressedBytes =
+              imageBytes; // You might want to implement actual compression here
         }
-        
-        final compressedResult = await _sendBase64Request(cloudflareWorkerUrl, compressedBytes, _babyData!);
+
+        final compressedResult = await _sendBase64Request(
+          cloudflareWorkerUrl,
+          compressedBytes,
+          _babyData!,
+        );
         return compressedResult;
       } catch (e) {
-        print("❌ Compressed request failed: $e");
-        throw Exception('All request methods failed. Last error: ${e.toString()}');
+        if (kDebugMode) {
+          print("❌ Compressed request failed: $e");
+        }
+        throw Exception(
+          'All request methods failed. Last error: ${e.toString()}',
+        );
       }
-
     } catch (e) {
-      print("❌ Network error: $e");
+      if (kDebugMode) {
+        print("❌ Network error: $e");
+      }
       throw Exception('Network error: ${e.toString()}');
     }
   }
 
   Future<Map<String, dynamic>> _sendMultipartRequest(
-    String url, 
-    Uint8List imageBytes, 
-    Map<String, dynamic> babyData
+    String url,
+    Uint8List imageBytes,
+    Map<String, dynamic> babyData,
   ) async {
     final request = http.MultipartRequest('POST', Uri.parse(url));
-    
+
     // Add headers
     request.headers['Content-Type'] = 'multipart/form-data';
-    
+
     // Add image file
     final multipartFile = http.MultipartFile.fromBytes(
       'image',
@@ -355,85 +440,116 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
 
     // Add baby data
     final babyDataJson = json.encode(babyData);
-    print("👶 Baby data: $babyDataJson");
+    if (kDebugMode) {
+      print("👶 Baby data: $babyDataJson");
+    }
     request.fields['babyData'] = babyDataJson;
 
     // Log request details
-    print("📋 Request fields: ${request.fields.keys.toList()}");
-    print("📋 Request files: ${request.files.map((f) => '${f.field}: ${f.filename} (${f.length} bytes)').toList()}");
+    if (kDebugMode) {
+      print("📋 Request fields: ${request.fields.keys.toList()}");
+    }
+    if (kDebugMode) {
+      print(
+        "📋 Request files: ${request.files.map((f) => '${f.field}: ${f.filename} (${f.length} bytes)').toList()}",
+      );
+    }
 
     // Send request with timeout
     final streamedResponse = await request.send().timeout(
       const Duration(seconds: 30),
     );
-    
+
     final response = await http.Response.fromStream(streamedResponse);
     return _processResponse(response);
   }
 
   Future<Map<String, dynamic>> _sendBase64Request(
-    String url, 
-    Uint8List imageBytes, 
-    Map<String, dynamic> babyData
+    String url,
+    Uint8List imageBytes,
+    Map<String, dynamic> babyData,
   ) async {
     final base64Image = base64Encode(imageBytes);
-    print("📊 Base64 image length: ${base64Image.length} characters");
-    
+    if (kDebugMode) {
+      print("📊 Base64 image length: ${base64Image.length} characters");
+    }
+
     final requestBody = {
       'image': base64Image,
       'babyData': babyData,
       'imageFormat': 'jpeg', // or detect format
     };
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(requestBody),
-    ).timeout(const Duration(seconds: 30));
-    
+    final response = await http
+        .post(
+          Uri.parse(url),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(requestBody),
+        )
+        .timeout(const Duration(seconds: 30));
+
     return _processResponse(response);
   }
 
   Map<String, dynamic> _processResponse(http.Response response) {
-    print("📥 Response status: ${response.statusCode}");
-    print("📄 Response headers: ${response.headers}");
-    print("📄 Response body length: ${response.body.length}");
-    
+    if (kDebugMode) {
+      print("📥 Response status: ${response.statusCode}");
+    }
+    if (kDebugMode) {
+      print("📄 Response headers: ${response.headers}");
+    }
+    if (kDebugMode) {
+      print("📄 Response body length: ${response.body.length}");
+    }
+
     // Log first 500 characters of response for debugging
-    final responsePreview = response.body.length > 500 
-        ? response.body.substring(0, 500) + "..." 
+    final responsePreview = response.body.length > 500
+        ? "${response.body.substring(0, 500)}..."
         : response.body;
-    print("📄 Response preview: $responsePreview");
+    if (kDebugMode) {
+      print("📄 Response preview: $responsePreview");
+    }
 
     if (response.statusCode == 200) {
       try {
         final Map<String, dynamic> result = json.decode(response.body);
-        print("✅ JSON parsed successfully");
+        if (kDebugMode) {
+          print("✅ JSON parsed successfully");
+        }
         return result;
       } catch (e) {
-        print("❌ JSON parsing failed: $e");
-        print("Raw response: ${response.body}");
+        if (kDebugMode) {
+          print("❌ JSON parsing failed: $e");
+        }
+        if (kDebugMode) {
+          print("Raw response: ${response.body}");
+        }
         throw Exception('Invalid JSON response: ${e.toString()}');
       }
     } else if (response.statusCode == 429) {
       throw Exception('Too many requests. Please wait a moment and try again.');
     } else {
-      print("❌ API error: ${response.statusCode} - ${response.body}");
+      if (kDebugMode) {
+        print("❌ API error: ${response.statusCode} - ${response.body}");
+      }
       throw Exception('API Error ${response.statusCode}: ${response.body}');
     }
   }
 
-  Future<void> _saveScanResult(Map<String, dynamic> result, String imagePath) async {
+  Future<String> _saveScanResult(
+    Map<String, dynamic> result,
+    String imagePath,
+  ) async {
     try {
-      print("💾 Saving scan result...");
+      if (kDebugMode) {
+        print("💾 Saving scan result...");
+      }
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Get existing scans
       final existingScansJson = prefs.getString('recent_scans');
       List<Map<String, dynamic>> recentScans = [];
-      
+
       if (existingScansJson != null) {
         final decoded = json.decode(existingScansJson);
         recentScans = List<Map<String, dynamic>>.from(decoded);
@@ -443,7 +559,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
       final appDir = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final savedImagePath = '${appDir.path}/scan_$timestamp.jpg';
-      
+
       final imageFile = File(imagePath);
       await imageFile.copy(savedImagePath);
 
@@ -471,7 +587,9 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
                 await oldFile.delete();
               }
             } catch (e) {
-              print('Error deleting old image: $e');
+              if (kDebugMode) {
+                print('Error deleting old image: $e');
+              }
             }
           }
         }
@@ -480,31 +598,42 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
 
       // Save updated scans
       await prefs.setString('recent_scans', json.encode(recentScans));
-      print("✅ Scan result saved");
+      if (kDebugMode) {
+        print("✅ Scan result saved");
+      }
+      return savedImagePath;
     } catch (e) {
-      print('Error saving scan result: $e');
+      if (kDebugMode) {
+        print('Error saving scan result: $e');
+      }
+      throw Exception('Failed to save scan result: ${e.toString()}');
     }
   }
-
-  void _confirmResults() async {
+void _confirmResults() async {
     if (_analysisResults != null) {
       try {
         // Extract nutritional data if available
-        final nutritionalInfo = _analysisResults!['nutritionalInfo'] as Map<String, dynamic>?;
+        final nutritionalInfo =
+            _analysisResults!['nutritionalInfo'] as Map<String, dynamic>?;
         double protein = 0.0;
-        double fiber = 0.0;
+        double carbs = 0.0;
+        double fats = 0.0;
 
         if (nutritionalInfo != null) {
           // Parse protein value (e.g., "2-4 g" -> take average)
           final proteinStr = nutritionalInfo['protein']?.toString() ?? '0 g';
           protein = _parseNutritionalValue(proteinStr);
-          
-          // Parse fiber value
-          final fiberStr = nutritionalInfo['fiber']?.toString() ?? '0 g';
-          fiber = _parseNutritionalValue(fiberStr);
+
+          // Parse carbs value
+          final carbsStr = nutritionalInfo['carbs']?.toString() ?? '0 g';
+          carbs = _parseNutritionalValue(carbsStr);
+
+          // Parse fats value
+          final fatsStr = nutritionalInfo['fat']?.toString() ?? '0 g';
+          fats = _parseNutritionalValue(fatsStr);
         }
 
-        await _saveNutritionData(protein, fiber);
+        await _saveNutritionData(protein, carbs, fats);
 
         // Show success message
         if (mounted) {
@@ -524,6 +653,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
         setState(() {
           _showResults = false;
           _analysisResults = null;
+          _capturedImagePath = null;
         });
       } catch (e) {
         setState(() {
@@ -533,6 +663,48 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
     }
   }
 
+  Future<void> _saveNutritionData(double protein, double carbs, double fats) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final today = DateTime.now();
+      final todayDateString = "${today.year}-${today.month}-${today.day}";
+      const dataKey = 'daily_nutrition_data';
+      const dateKey = 'last_saved_date';
+
+      String? lastSavedDate = prefs.getString(dateKey);
+
+      Map<String, dynamic> todayData = {};
+
+      if (lastSavedDate == todayDateString) {
+        // Same day, get current values
+        final existingDataString = prefs.getString(dataKey);
+        if (existingDataString != null) {
+          todayData = json.decode(existingDataString);
+        }
+      }
+      // If it's a new day, todayData will be empty, effectively resetting.
+
+      double currentProtein = (todayData['protein'] ?? 0.0).toDouble();
+      double currentCarbs = (todayData['carbs'] ?? 0.0).toDouble();
+      double currentFats = (todayData['fats'] ?? 0.0).toDouble();
+
+      double newProtein = currentProtein + protein;
+      double newCarbs = currentCarbs + carbs;
+      double newFats = currentFats + fats;
+
+      todayData['protein'] = newProtein;
+      todayData['carbs'] = newCarbs;
+      todayData['fats'] = newFats;
+
+      await prefs.setString(dataKey, json.encode(todayData));
+      await prefs.setString(dateKey, todayDateString);
+
+      // Update the callback to pass the correct values
+      widget.onNutritionUpdate(newProtein, newCarbs); // Or adjust as needed
+    } catch (e) {
+      throw Exception('Failed to save nutrition data: ${e.toString()}');
+    }
+  }
   double _parseNutritionalValue(String value) {
     try {
       // Remove 'g' and other units, handle ranges like "2-4 g"
@@ -551,39 +723,11 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
     }
   }
 
-  Future<void> _saveNutritionData(double protein, double fiber) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final today = DateTime.now();
-      final todayWeekday = today.weekday % 7;
-      final todayKey = 'day_$todayWeekday';
-
-      Map<String, dynamic> todayData = {};
-      final existingDataString = prefs.getString(todayKey);
-      if (existingDataString != null) {
-        todayData = json.decode(existingDataString);
-      }
-
-      double currentProtein = (todayData['protein'] ?? 0.0).toDouble();
-      double currentFiber = (todayData['fiber'] ?? 0.0).toDouble();
-
-      double newProtein = currentProtein + protein;
-      double newFiber = currentFiber + fiber;
-
-      todayData['protein'] = newProtein;
-      todayData['fiber'] = newFiber;
-
-      await prefs.setString(todayKey, json.encode(todayData));
-      widget.onNutritionUpdate(newProtein, newFiber);
-    } catch (e) {
-      throw Exception('Failed to save nutrition data: ${e.toString()}');
-    }
-  }
-
   void _retakePhoto() {
     setState(() {
       _showResults = false;
       _analysisResults = null;
+      _capturedImagePath = null;
     });
   }
 
@@ -593,16 +737,6 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
     return const Color(0xFFF44336); // Red
   }
 
-  String _getVerdictText(String verdict) {
-    switch (verdict.toLowerCase()) {
-      case 'excellent': return 'Excellent';
-      case 'good': return 'Good';
-      case 'okay': return 'Okay';
-      case 'poor': return 'Poor';
-      case 'unsafe': return 'Unsafe';
-      default: return 'Unknown';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -614,33 +748,11 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
         children: [
           // Camera Preview or Results
           if (_showResults && _analysisResults != null)
-            _buildResultsView()
+            _buildResultsView(size)
           else if (_isCameraInitialized && _cameraController != null)
             _buildCameraView()
           else
             _buildLoadingOrErrorView(),
-
-          // Debug Message Overlay
-          if (_debugMessage != null && kDebugMode)
-            Positioned(
-              top: 120,
-              left: 20,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.black87,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'DEBUG: $_debugMessage',
-                  style: GoogleFonts.poppins(
-                    color: Colors.yellow,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ),
 
           // Top Bar
           SafeArea(
@@ -649,28 +761,28 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      widget.controller.animateToPage(
-                        widget.pageIndex - 1,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Color.fromRGBO(0, 0, 0, 0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: FaIcon(
-                        FontAwesomeIcons.xmark,
-                        color: Colors.white,
-                        size: 20,
+                  if (!_showResults) ...[
+                    GestureDetector(
+                      onTap: () {
+                        widget.controller.animateToPage(
+                          widget.pageIndex - 1,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(0, 0, 0, 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: FaIcon(
+                          FontAwesomeIcons.xmark,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
-                  ),
-                  if (!_showResults)
                     Text(
                       'Totsy',
                       style: GoogleFonts.poppins(
@@ -679,27 +791,26 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                  ],
                 ],
               ),
             ),
           ),
 
           // Capture Button or Results Actions
-          if (_showResults) _buildResultsActions() else _buildCaptureButton(),
-
-          // Test Button (debug mode only)
-          _buildTestButton(),
+          if (!_showResults) _buildCaptureButton(),
 
           // Processing Overlay
           if (_isProcessing)
             Container(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.7),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(
-                      color: Color.fromRGBO(255, 128, 140, 1),
+                      color: Color.fromRGBO(63, 114, 66, 1),
                     ),
                     const SizedBox(height: 20),
                     Text(
@@ -745,7 +856,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
                     Shadow(
                       offset: const Offset(0, 1),
                       blurRadius: 3,
-                      color: Colors.black.withOpacity(0.5),
+                      color: Color.fromRGBO(0, 0, 0, 0.5),
                     ),
                   ],
                 ),
@@ -757,247 +868,254 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
     );
   }
 
-  Widget _buildResultsView() {
+  Widget _buildResultsView(size) {
     final score = _analysisResults!['score'] ?? 0;
     final productName = _analysisResults!['productName'] ?? 'Unknown Product';
     final manufacturer = _analysisResults!['manufacturer'] ?? '';
-    final verdict = _analysisResults!['verdict'] ?? 'okay';
     final summary = _analysisResults!['summary'] ?? 'Analysis completed';
-    final nutritionalInfo = _analysisResults!['nutritionalInfo'] as Map<String, dynamic>?;
+    final nutritionalInfo =
+        _analysisResults!['nutritionalInfo'] as Map<String, dynamic>?;
 
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: const Color(0xFFF5F5F5),
+      color: Color.fromRGBO(243, 243, 243, 1),
       child: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(20),
-              child: Row(
+        child: Padding(
+          padding: EdgeInsets.all(size.width * 0.05),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: size.width * 0.05),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF34D399),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Scan Results',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
+                  Image.asset('assets/logo_transparent.png', height: 30),
                 ],
               ),
-            ),
-
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Product Image Placeholder
+              const SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_capturedImagePath != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.file(
+                        File(_capturedImagePath!),
+                        width: 150,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  else
                     Container(
-                      width: double.infinity,
-                      height: 120,
+                      width: 150,
+                      height: 150,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8F4FD),
+                        color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
-                        Icons.baby_changing_station,
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey[400],
                         size: 48,
-                        color: Color(0xFF64B5F6),
                       ),
                     ),
-
-                    const SizedBox(height: 20),
-
-                    // Product Name and Brand
-                    Text(
-                      productName,
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
-                    ),
-                    if (manufacturer.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                ],
+              ),
+              const SizedBox(height: 25),
+              Text(
+                'Scan Results >',
+                textAlign: TextAlign.left,
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        manufacturer,
+                        productName,
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.grey[600],
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
                         ),
                       ),
-                    ],
-
-                    const SizedBox(height: 20),
-
-                    // Score Circle
-                    Center(
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: _getScoreColor(score),
-                            width: 6,
+                      if (manufacturer.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          manufacturer,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.black,
                           ),
                         ),
-                        child: Center(
-                          child: Text(
-                            score.toString(),
-                            style: GoogleFonts.poppins(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w700,
-                              color: _getScoreColor(score),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                      ],
 
-                    const SizedBox(height: 16),
-
-                    // Nutritional Info
-                    if (nutritionalInfo != null) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildNutrientInfo(
-                            'Protein',
-                            nutritionalInfo['protein'] ?? '0g',
-                          ),
-                          _buildNutrientInfo(
-                            'Fats',
-                            nutritionalInfo['fat'] ?? '0g',
-                          ),
-                          _buildNutrientInfo(
-                            'Carbs',
-                            nutritionalInfo['carbs'] ?? '0g',
-                          ),
-                          _buildNutrientInfo(
-                            'Fiber',
-                            nutritionalInfo['fiber'] ?? '0g',
-                          ),
-                        ],
-                      ),
                       const SizedBox(height: 20),
-                    ],
-
-                    // Overview Section
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8F9FA),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Overview',
+                                "Protein",
+                                textAlign: TextAlign.left,
                                 style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
                                   color: Colors.black,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
+                              SizedBox(height: 5),
+                              Text(
+                                "Fat",
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(12),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "Carbs",
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                child: Text(
-                                  '0 Risks',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: Colors.grey[700],
-                                  ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "Fiber",
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            summary,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey[700],
-                              height: 1.4,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                nutritionalInfo?["protein"] ?? "0g",
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                nutritionalInfo?["fat"] ?? "0g",
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                nutritionalInfo?["carbs"] ?? "0g",
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                nutritionalInfo?["fiber"] ?? "0g",
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                width: 120,
+                                height: 120,
+                                child: CircularProgressIndicator(
+                                  value: score / 100,
+                                  color: _getScoreColor(score),
+                                  strokeWidth: 8,
+                                  backgroundColor: Color.fromRGBO(
+                                    230,
+                                    230,
+                                    230,
+                                    1,
+                                  ),
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    score.toString(),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w700,
+                                      color: _getScoreColor(score),
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                  Text(
+                                    "out of 100",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: _getScoreColor(score),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-
-                    const Spacer(),
-                  ],
+                      SizedBox(height: 20,),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Text(
+                            summary,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 25),
+              _buildResultsActions(),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildNutrientInfo(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
-        ),
-      ],
     );
   }
 
@@ -1015,7 +1133,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(255, 128, 140, 1),
+                color: const Color.fromRGBO(63, 114, 66, 1),
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Text(
@@ -1060,7 +1178,9 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
       child: Center(
         child: GestureDetector(
           onTap: () {
-            print("🔥 Camera button tapped! Processing: $_isProcessing");
+            if (kDebugMode) {
+              print("🔥 Camera button tapped! Processing: $_isProcessing");
+            }
             if (!_isProcessing) {
               _captureAndAnalyze();
             }
@@ -1072,9 +1192,9 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
               shape: BoxShape.circle,
               color: _isProcessing ? Colors.grey : Colors.white,
               border: Border.all(
-                color: _isProcessing 
-                    ? Colors.grey 
-                    : Color.fromRGBO(63, 166, 66, 1),
+                color: _isProcessing
+                    ? Colors.grey
+                    : Color.fromRGBO(63, 114, 66, 1),
                 width: 4,
               ),
             ),
@@ -1086,14 +1206,14 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Color.fromRGBO(63, 166, 66, 1),
+                          Color.fromRGBO(63, 114, 66, 1)
                         ),
                       ),
                     )
                   : const FaIcon(
                       FontAwesomeIcons.camera,
                       size: 25,
-                      color: Color.fromRGBO(63, 166, 66, 1),
+                      color: Color.fromRGBO(63, 114, 66, 1),
                     ),
             ),
           ),
@@ -1124,7 +1244,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
               ElevatedButton(
                 onPressed: _initializeCamera,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(255, 128, 140, 1),
+                  backgroundColor: const Color.fromRGBO(63, 114, 66, 1),
                 ),
                 child: Text(
                   'Retry',
@@ -1133,7 +1253,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
               ),
             ] else ...[
               const CircularProgressIndicator(
-                color: Color.fromRGBO(255, 128, 140, 1),
+                color: Color.fromRGBO(63, 114, 66, 1)
               ),
               const SizedBox(height: 20),
               Text(
@@ -1148,51 +1268,6 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
   }
 
   // Add test button for debugging (only in debug mode)
-  Widget _buildTestButton() {
-    if (!kDebugMode) return const SizedBox.shrink();
-    
-    return Positioned(
-      top: 200,
-      right: 20,
-      child: ElevatedButton(
-        onPressed: () async {
-          print("🧪 Test button pressed");
-          
-          // Create a mock result for testing
-          final mockResult = {
-            'score': 85,
-            'productName': 'Test Baby Food',
-            'manufacturer': 'Test Brand',
-            'verdict': 'excellent',
-            'summary': 'This is a test analysis result for debugging purposes.',
-            'nutritionalInfo': {
-              'protein': '2.5g',
-              'fat': '1.2g',
-              'carbs': '8.5g',
-              'fiber': '1.8g',
-            }
-          };
-          
-          setState(() {
-            _analysisResults = mockResult;
-            _showResults = true;
-            _debugMessage = "Mock result loaded for testing";
-          });
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        ),
-        child: Text(
-          'TEST',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 12,
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 // Custom painter for grid overlay
@@ -1200,7 +1275,7 @@ class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
+      ..color = Color.fromRGBO(255, 255, 255, 0.5)
       ..strokeWidth = 1;
 
     // Draw grid lines

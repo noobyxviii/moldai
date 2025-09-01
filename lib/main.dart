@@ -272,7 +272,7 @@ class _AppInitializerState extends State<AppInitializer> {
             
             // Loading indicator (show error color if there's an error)
             CircularProgressIndicator(
-              color: _hasError ? Colors.red[300] : Color.fromRGBO(63, 44, 43, 1),
+              color: Color.fromRGBO(63, 114, 66, 1),
               strokeWidth: 2,
             ),
             const SizedBox(height: 24),
@@ -282,7 +282,7 @@ class _AppInitializerState extends State<AppInitializer> {
               _initializationStatus,
               style: TextStyle(
                 fontSize: 16,
-                color: _hasError ? Colors.red[300] : Color.fromRGBO(63, 44, 43, 1),
+                color: Color.fromRGBO(63, 114, 66, 1),
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,

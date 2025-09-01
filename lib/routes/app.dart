@@ -32,6 +32,7 @@ class _AppFlowState extends State<AppFlow> {
         children: [
           HomeScreen(controller: _pageController, pageIndex: _currentPage),
           FoodScannerScreen(onNutritionUpdate: (double protein, double fiber) {  },controller: _pageController, pageIndex: _currentPage),
+          ProfileScreen(controller: _pageController, pageIndex: _currentPage)
         ],
       ),
     );
