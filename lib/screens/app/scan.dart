@@ -1196,57 +1196,51 @@ Future<String> _saveScanResult(
     );
   }
 
-  Widget _buildResultsActions() {
-    return Positioned(
-      bottom: 50,
-      left: 20,
-      right: 20,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Retake Button
-          GestureDetector(
-            onTap: _retakePhoto,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: Text(
-                'Retake',
-                style: GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+ Widget _buildResultsActions() {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      // Retake Button
+      GestureDetector(
+        onTap: _retakePhoto,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: Text(
+            'Retake',
+            style: GoogleFonts.poppins(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          // Confirm Button
-          GestureDetector(
-            onTap: _confirmResults,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              decoration: BoxDecoration(
-                color: const Color.fromRGBO(63, 114, 66, 1),
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: Text(
-                'Save Results',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-
+      // Confirm Button
+      GestureDetector(
+        onTap: _confirmResults,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(63, 114, 66, 1),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: Text(
+            'Save Results',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
   Widget _buildCaptureButton() {
     return Positioned(
       bottom: 50,
