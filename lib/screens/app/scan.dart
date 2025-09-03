@@ -168,121 +168,154 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
     }
   }
 
-  Future<void> _captureAndAnalyze() async {
-    if (kDebugMode) {
-      print("🔥 _captureAndAnalyze called!");
-    } // Debug print
-
-    // Check camera controller
-    if (_cameraController == null) {
-      if (kDebugMode) {
-        print("❌ Camera controller is null");
-      }
-      setState(() {
-        _errorMessage = "Camera controller is null";
-        _debugMessage = "Camera controller not initialized";
-      });
-      return;
-    }
-
-    if (!_cameraController!.value.isInitialized) {
-      if (kDebugMode) {
-        print("❌ Camera is not initialized");
-      }
-      setState(() {
-        _errorMessage = "Camera is not initialized";
-        _debugMessage = "Camera not ready";
-      });
-      return;
-    }
-
-    // Check baby data
-    if (_babyData == null) {
-      if (kDebugMode) {
-        print("❌ Baby data is null");
-      }
-      setState(() {
-        _errorMessage =
-            'Baby data not found. Please set up your baby profile first.';
-        _debugMessage = "No baby data available";
-      });
-      return;
-    }
-
-    if (kDebugMode) {
-      if (kDebugMode) {
-      print("✅ All checks passed, starting capture process");
-    }
-    }
-    setState(() {
-      _isProcessing = true;
-      _errorMessage = null;
-      _debugMessage = "Capturing image...";
-    });
-
-    try {
-      // Capture image
-      if (kDebugMode) {
-        print("📸 Taking picture...");
-      }
-      final XFile image = await _cameraController!.takePicture();
-      if (kDebugMode) {
-        print("✅ Picture taken: ${image.path}");
-      }
-
-      // Add haptic feedback
-      HapticFeedback.mediumImpact();
-
-      setState(() {
-        _debugMessage = "Image captured, analyzing...";
-      });
-
-      // Check if file exists
-      final file = File(image.path);
-      if (!await file.exists()) {
-        throw Exception("Captured image file does not exist");
-      }
-
-      final fileSize = await file.length();
-      if (kDebugMode) {
-        print("📁 Image file size: $fileSize bytes");
-      }
-
-      // Send to Cloudflare Worker for analysis
-      if (kDebugMode) {
-        print("🌐 Sending to API...");
-      }
-      final results = await _analyzeBabyFood(file);
-      if (kDebugMode) {
-        print("✅ API response received");
-      }
-
-      // Save the scan result and image
-      final savedImagePath = await _saveScanResult(results, image.path);
-
-      setState(() {
-        _analysisResults = results;
-        _capturedImagePath = savedImagePath;
-        _showResults = true;
-        _isProcessing = false;
-        _debugMessage = "Analysis completed successfully";
-      });
-
-      if (kDebugMode) {
-        print("✅ Analysis completed and UI updated");
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("❌ Error in capture and analyze: $e");
-      }
-      setState(() {
-        _errorMessage = 'Failed to analyze food: ${e.toString()}';
-        _isProcessing = false;
-        _debugMessage = "Error: $e";
-      });
-    }
+Future<void> _captureAndAnalyze() async {
+  if (kDebugMode) {
+    print("🔥 _captureAndAnalyze called!");
   }
 
+  // Check camera controller
+  if (_cameraController == null) {
+    if (kDebugMode) {
+      print("❌ Camera controller is null");
+    }
+    setState(() {
+      _errorMessage = "Camera controller is null";
+      _debugMessage = "Camera controller not initialized";
+    });
+    return;
+  }
+
+  if (!_cameraController!.value.isInitialized) {
+    if (kDebugMode) {
+      print("❌ Camera is not initialized");
+    }
+    setState(() {
+      _errorMessage = "Camera is not initialized";
+      _debugMessage = "Camera not ready";
+    });
+    return;
+  }
+
+  // Check baby data
+  if (_babyData == null) {
+    if (kDebugMode) {
+      print("❌ Baby data is null");
+    }
+    setState(() {
+      _errorMessage = 'Baby data not found. Please set up your baby profile first.';
+      _debugMessage = "No baby data available";
+    });
+    return;
+  }
+
+  if (kDebugMode) {
+    print("✅ All checks passed, starting capture process");
+  }
+  
+  setState(() {
+    _isProcessing = true;
+    _errorMessage = null;
+    _debugMessage = "Capturing image...";
+  });
+
+  XFile? capturedImage;
+  String? permanentImagePath;
+
+  try {
+    // Capture image
+    if (kDebugMode) {
+      print("📸 Taking picture...");
+    }
+    capturedImage = await _cameraController!.takePicture();
+    if (kDebugMode) {
+      print("✅ Picture taken: ${capturedImage.path}");
+    }
+
+    // Add haptic feedback
+    HapticFeedback.mediumImpact();
+
+    setState(() {
+      _debugMessage = "Image captured, copying to permanent location...";
+    });
+
+    // Immediately copy the image to a permanent location
+    final appDir = await getApplicationDocumentsDirectory();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    permanentImagePath = '${appDir.path}/temp_scan_$timestamp.jpg';
+
+    // Ensure source file exists
+    final sourceFile = File(capturedImage.path);
+    if (!await sourceFile.exists()) {
+      throw Exception("Captured image file does not exist at ${capturedImage.path}");
+    }
+
+    // Copy to permanent location immediately
+    final permanentFile = File(permanentImagePath);
+    await sourceFile.copy(permanentImagePath);
+
+    if (!await permanentFile.exists()) {
+      throw Exception("Failed to create permanent copy of image");
+    }
+
+    final fileSize = await permanentFile.length();
+    if (kDebugMode) {
+      print("📁 Permanent image file size: $fileSize bytes at $permanentImagePath");
+    }
+
+    setState(() {
+      _debugMessage = "Image saved, analyzing...";
+    });
+
+    // Send the permanent file for analysis
+    if (kDebugMode) {
+      print("🌐 Sending to API...");
+    }
+    final results = await _analyzeBabyFood(permanentFile);
+    if (kDebugMode) {
+      print("✅ API response received");
+    }
+
+    // Save the scan result using the permanent image path
+    final finalImagePath = await _saveScanResult(results, permanentImagePath);
+
+    setState(() {
+      _analysisResults = results;
+      _capturedImagePath = finalImagePath;
+      _showResults = true;
+      _isProcessing = false;
+      _debugMessage = "Analysis completed successfully";
+    });
+
+    if (kDebugMode) {
+      print("✅ Analysis completed and UI updated");
+    }
+
+  } catch (e) {
+    if (kDebugMode) {
+      print("❌ Error in capture and analyze: $e");
+    }
+    
+    // Clean up temporary file if it was created
+    if (permanentImagePath != null) {
+      try {
+        final tempFile = File(permanentImagePath);
+        if (await tempFile.exists()) {
+          await tempFile.delete();
+        }
+      } catch (cleanupError) {
+        if (kDebugMode) {
+          print("Warning: Failed to cleanup temp file: $cleanupError");
+        }
+      }
+    }
+
+    setState(() {
+      _errorMessage = 'Failed to analyze food: ${e.toString()}';
+      _isProcessing = false;
+      _debugMessage = "Error: $e";
+    });
+  }
+}
   Future<Map<String, dynamic>> _analyzeBabyFood(File imageFile) async {
     const String cloudflareWorkerUrl =
         'https://curly-morning-0115.xviii2008.workers.dev/analyze-baby-food';
@@ -536,80 +569,124 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
     }
   }
 
-  Future<String> _saveScanResult(
-    Map<String, dynamic> result,
-    String imagePath,
-  ) async {
-    try {
+Future<String> _saveScanResult(
+  Map<String, dynamic> result,
+  String imagePath,
+) async {
+  try {
+    if (kDebugMode) {
+      print("💾 Saving scan result...");
+    }
+    final prefs = await SharedPreferences.getInstance();
+
+    // Get existing scans
+    final existingScansJson = prefs.getString('recent_scans');
+    List<Map<String, dynamic>> recentScans = [];
+
+    if (existingScansJson != null) {
+      final decoded = json.decode(existingScansJson);
+      recentScans = List<Map<String, dynamic>>.from(decoded);
+    }
+
+    // Check if source image file exists
+    final sourceFile = File(imagePath);
+    if (!await sourceFile.exists()) {
       if (kDebugMode) {
-        print("💾 Saving scan result...");
+        print("❌ Source image file does not exist: $imagePath");
       }
-      final prefs = await SharedPreferences.getInstance();
+      throw Exception('Source image file no longer exists');
+    }
 
-      // Get existing scans
-      final existingScansJson = prefs.getString('recent_scans');
-      List<Map<String, dynamic>> recentScans = [];
+    // Save image to app directory
+    final appDir = await getApplicationDocumentsDirectory();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final savedImagePath = '${appDir.path}/scan_$timestamp.jpg';
 
-      if (existingScansJson != null) {
-        final decoded = json.decode(existingScansJson);
-        recentScans = List<Map<String, dynamic>>.from(decoded);
+    // Ensure the destination directory exists
+    final destinationDir = Directory(appDir.path);
+    if (!await destinationDir.exists()) {
+      await destinationDir.create(recursive: true);
+    }
+
+    // Copy the file
+    try {
+      await sourceFile.copy(savedImagePath);
+      if (kDebugMode) {
+        print("✅ Image copied successfully to: $savedImagePath");
       }
+    } catch (e) {
+      if (kDebugMode) {
+        print("❌ Failed to copy image: $e");
+      }
+      // Alternative approach: Read bytes and write to new file
+      try {
+        final imageBytes = await sourceFile.readAsBytes();
+        final destinationFile = File(savedImagePath);
+        await destinationFile.writeAsBytes(imageBytes);
+        if (kDebugMode) {
+          print("✅ Image saved using bytes approach: $savedImagePath");
+        }
+      } catch (bytesError) {
+        if (kDebugMode) {
+          print("❌ Bytes approach also failed: $bytesError");
+        }
+        throw Exception('Failed to save image: $bytesError');
+      }
+    }
 
-      // Save image to app directory
-      final appDir = await getApplicationDocumentsDirectory();
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final savedImagePath = '${appDir.path}/scan_$timestamp.jpg';
+    // Verify the saved file exists
+    final savedFile = File(savedImagePath);
+    if (!await savedFile.exists()) {
+      throw Exception('Saved image file was not created successfully');
+    }
 
-      final imageFile = File(imagePath);
-      await imageFile.copy(savedImagePath);
+    // Create new scan entry
+    final newScan = {
+      'score': result['score'] ?? 0,
+      'productName': result['productName'] ?? 'Unknown Product',
+      'manufacturer': result['manufacturer'] ?? '',
+      'imagePath': savedImagePath,
+      'timestamp': timestamp,
+    };
 
-      // Create new scan entry
-      final newScan = {
-        'score': result['score'] ?? 0,
-        'productName': result['productName'] ?? 'Unknown Product',
-        'manufacturer': result['manufacturer'] ?? '',
-        'imagePath': savedImagePath,
-        'timestamp': timestamp,
-      };
+    // Add to beginning of list
+    recentScans.insert(0, newScan);
 
-      // Add to beginning of list
-      recentScans.insert(0, newScan);
-
-      // Keep only last 3 scans
-      if (recentScans.length > 3) {
-        // Delete old image files
-        for (int i = 3; i < recentScans.length; i++) {
-          final oldImagePath = recentScans[i]['imagePath'];
-          if (oldImagePath != null) {
-            try {
-              final oldFile = File(oldImagePath);
-              if (await oldFile.exists()) {
-                await oldFile.delete();
-              }
-            } catch (e) {
-              if (kDebugMode) {
-                print('Error deleting old image: $e');
-              }
+    // Keep only last 3 scans
+    if (recentScans.length > 3) {
+      // Delete old image files
+      for (int i = 3; i < recentScans.length; i++) {
+        final oldImagePath = recentScans[i]['imagePath'];
+        if (oldImagePath != null) {
+          try {
+            final oldFile = File(oldImagePath);
+            if (await oldFile.exists()) {
+              await oldFile.delete();
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('Error deleting old image: $e');
             }
           }
         }
-        recentScans = recentScans.take(3).toList();
       }
-
-      // Save updated scans
-      await prefs.setString('recent_scans', json.encode(recentScans));
-      if (kDebugMode) {
-        print("✅ Scan result saved");
-      }
-      return savedImagePath;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error saving scan result: $e');
-      }
-      throw Exception('Failed to save scan result: ${e.toString()}');
+      recentScans = recentScans.take(3).toList();
     }
+
+    // Save updated scans
+    await prefs.setString('recent_scans', json.encode(recentScans));
+    if (kDebugMode) {
+      print("✅ Scan result saved");
+    }
+    return savedImagePath;
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error saving scan result: $e');
+    }
+    throw Exception('Failed to save scan result: ${e.toString()}');
   }
-void _confirmResults() async {
+}
+  void _confirmResults() async {
     if (_analysisResults != null) {
       try {
         // Extract nutritional data if available

@@ -118,12 +118,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp( 
-      title: 'Naild',
+      title: 'Totsy',
       theme: ThemeData(
         progressIndicatorTheme: ProgressIndicatorThemeData(color: Colors.black),
       ),
       debugShowCheckedModeBanner: false,
-      home: const OnboardingFlow(),
+      home: const AppInitializer(),
     );
   }
 }
