@@ -1,4 +1,4 @@
-# totsy
+# MoldAI
 
 A new Flutter project.
 

@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class DecideScreen extends StatefulWidget {
+class MoldConcernsScreen extends StatefulWidget {
   final PageController controller;
   final int pageIndex;
-  const DecideScreen({
+  const MoldConcernsScreen({
     super.key,
     required this.controller,
     required this.pageIndex,
   });
 
   @override
-  State<DecideScreen> createState() => _OnboardingScreenState();
+  State<MoldConcernsScreen> createState() => _MoldConcernsScreenState();
 }
 
-class _OnboardingScreenState extends State<DecideScreen> {
+class _MoldConcernsScreenState extends State<MoldConcernsScreen> {
   int _selectedAnswer = 0;
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class _OnboardingScreenState extends State<DecideScreen> {
                         ),
                       ),
                       Container(
-                        width: (deviceWidth * 0.9 - 120) * (3 / 7),
+                        width: (deviceWidth * 0.9 - 120) * (2 / 7),
                         height: 7.5,
                         decoration: BoxDecoration(
                           color: Colors.black,
@@ -59,7 +59,7 @@ class _OnboardingScreenState extends State<DecideScreen> {
 
               SizedBox(height: 25),
               Text(
-                "How do you usually decide if a baby food is healthy?",
+                "What's your biggest concern about mold?",
                 textAlign: TextAlign.left,
                 style: GoogleFonts.poppins(
                   fontSize: 30,
@@ -71,7 +71,7 @@ class _OnboardingScreenState extends State<DecideScreen> {
               ),
               SizedBox(height: 15),
               Text(
-                "I usually...",
+                "I'm most worried about...",
                 textAlign: TextAlign.left,
                 style: GoogleFonts.poppins(
                   fontSize: 18,
@@ -82,6 +82,8 @@ class _OnboardingScreenState extends State<DecideScreen> {
                 ),
               ),
               Spacer(),
+
+              // Option 1
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -104,7 +106,7 @@ class _OnboardingScreenState extends State<DecideScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      "Read packaging or trust a brand",
+                      "Health issues from exposure",
                       style: GoogleFonts.poppins(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -115,6 +117,8 @@ class _OnboardingScreenState extends State<DecideScreen> {
                 ),
               ),
               SizedBox(height: 15),
+
+              // Option 2
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -137,7 +141,7 @@ class _OnboardingScreenState extends State<DecideScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      "Quickly scan the ingredients list",
+                      "Damage to my home",
                       style: GoogleFonts.poppins(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -148,6 +152,8 @@ class _OnboardingScreenState extends State<DecideScreen> {
                 ),
               ),
               SizedBox(height: 15),
+
+              // Option 3
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -170,7 +176,7 @@ class _OnboardingScreenState extends State<DecideScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      "Search online or ask friends",
+                      "Difficulty knowing if it's dangerous",
                       style: GoogleFonts.poppins(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -181,6 +187,8 @@ class _OnboardingScreenState extends State<DecideScreen> {
                 ),
               ),
               SizedBox(height: 15),
+
+              // Option 4
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -203,7 +211,7 @@ class _OnboardingScreenState extends State<DecideScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      "Just guess and hope it's healthy",
+                      "Not sure how to remove it safely",
                       style: GoogleFonts.poppins(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -213,6 +221,7 @@ class _OnboardingScreenState extends State<DecideScreen> {
                   ),
                 ),
               ),
+
               Spacer(),
               SizedBox(
                 width: double.infinity,

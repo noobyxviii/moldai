@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:totsy/firebase_options.dart';
+import 'package:moldai/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'dart:io';
 import 'dart:math';
 import 'dart:async';
-import 'package:totsy/routes/app.dart';
-import 'package:totsy/routes/onboarding.dart';
+import 'package:moldai/routes/app.dart';
+import 'package:moldai/routes/onboarding.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -278,7 +278,7 @@ class _AppInitializerState extends State<AppInitializer> {
             
             // Loading indicator (show error color if there's an error)
             CircularProgressIndicator(
-              color: Color.fromRGBO(63, 114, 66, 1),
+              color: Color.fromRGBO(26, 188, 156, 1),
               strokeWidth: 2,
             ),
             const SizedBox(height: 24),
@@ -288,7 +288,7 @@ class _AppInitializerState extends State<AppInitializer> {
               _initializationStatus,
               style: TextStyle(
                 fontSize: 16,
-                color: Color.fromRGBO(63, 114, 66, 1),
+                color: Color.fromRGBO(26, 188, 156, 1),
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,

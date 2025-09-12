@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:totsy/screens/onboarding/decide.dart';
-import 'package:totsy/screens/onboarding/effective.dart';
-import 'package:totsy/screens/onboarding/get_started.dart';
-import 'package:totsy/screens/onboarding/info.dart';
-import 'package:totsy/screens/onboarding/parent.dart';
-import 'package:totsy/screens/onboarding/paywall.dart';
-import 'package:totsy/screens/onboarding/review.dart';
-import 'package:totsy/screens/onboarding/thanks.dart';
-import 'package:totsy/screens/onboarding/worries.dart';
+import 'package:moldai/screens/onboarding/challenges.dart';
+import 'package:moldai/screens/onboarding/effective.dart';
+import 'package:moldai/screens/onboarding/get_started.dart';
+import 'package:moldai/screens/onboarding/safety.dart';
+import 'package:moldai/screens/onboarding/paywall.dart';
+import 'package:moldai/screens/onboarding/review.dart';
+import 'package:moldai/screens/onboarding/thanks.dart';
+import 'package:moldai/screens/onboarding/concerns.dart';
 
 class OnboardingFlow extends StatefulWidget {
   const OnboardingFlow({super.key});
@@ -26,11 +25,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   // Your existing screen names
   final List<String> _screenNames = [
     'Get Started Screen',
-    'Worries Screen',
-    'Decide Screen',
-    'Parent Screen',
+    'Concern Screen',
+    'Mold Screen',
     'Effective Screen',
-    'Info Screen',
     'Review Screen',
     'Thanks Screen',
     'Paywall Screen',
@@ -87,11 +84,10 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         physics: const NeverScrollableScrollPhysics(),
         children: [
           GetStartedScreen(controller: _pageController, pageIndex: _currentPage),
-          WorriesScreen(controller: _pageController, pageIndex: _currentPage),
-          DecideScreen(controller: _pageController, pageIndex: _currentPage),
-          ParentScreen(controller: _pageController, pageIndex: _currentPage),
+          MoldConcernsScreen(controller: _pageController, pageIndex: _currentPage),
+          MoldChallengeScreen(controller: _pageController, pageIndex: _currentPage),
+          MoldScreen(controller: _pageController, pageIndex: _currentPage),
           EffectiveScreen(controller: _pageController, pageIndex: _currentPage),
-          InfoScreen(controller: _pageController, pageIndex: _currentPage),
           ReviewScreen(controller: _pageController, pageIndex: _currentPage),
           ThanksScreen(controller: _pageController, pageIndex: _currentPage),
           PaywallScreen(controller: _pageController, pageIndex: _currentPage)

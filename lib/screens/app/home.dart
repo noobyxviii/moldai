@@ -22,8 +22,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Map<String, dynamic>? _todayNutrition;
   List<Map<String, dynamic>> _recentScans = [];
+  Map<String, int> _scanStatistics = {'totalScans': 0, 'highRiskScans': 0};
   bool _isLoading = true;
 
   @override
@@ -33,114 +33,64 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadData() async {
-    await _loadTodayNutrition();
-    await _loadRecentScans();
+    await _loadRecentMoldScans();
+    await _loadScanStatistics();
     setState(() {
       _isLoading = false;
     });
   }
 
-  Future<void> _loadTodayNutrition() async {
+  // Updated to load mold scans from the correct key
+  Future<void> _loadRecentMoldScans() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final today = DateTime.now();
-      final todayDateString = "${today.year}-${today.month}-${today.day}";
-      const dataKey = 'daily_nutrition_data';
-      const dateKey = 'last_saved_date';
-
-      String? lastSavedDate = prefs.getString(dateKey);
-
-      if (lastSavedDate == todayDateString) {
-        final existingDataString = prefs.getString(dataKey);
-        if (existingDataString != null) {
-          _todayNutrition = json.decode(existingDataString);
-        }
-      }
-
-      // If no data for today, initialize with zeros
-      _todayNutrition ??= {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0};
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error loading today nutrition: $e');
-      }
-      _todayNutrition = {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0};
-    }
-  }
-
-  Future<void> _loadRecentScans() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final existingScansJson = prefs.getString('recent_scans');
+      final existingScansJson = prefs.getString('recent_mold_scans'); // Changed key
 
       if (existingScansJson != null) {
         final decoded = json.decode(existingScansJson);
         _recentScans = List<Map<String, dynamic>>.from(decoded);
+        
+        if (kDebugMode) {
+          print('Loaded ${_recentScans.length} mold scans');
+        }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error loading recent scans: $e');
+        print('Error loading recent mold scans: $e');
       }
       _recentScans = [];
     }
   }
 
-  String _formatNutritionValue(dynamic value) {
-    if (value == null) return "0g";
-    double doubleValue = value is double
-        ? value
-        : double.tryParse(value.toString()) ?? 0.0;
-    return "${doubleValue.round()}g";
+  // New method to load scan statistics
+  Future<void> _loadScanStatistics() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      final totalScans = prefs.getInt('total_scans_count') ?? 0;
+      final highRiskScans = prefs.getInt('high_risk_scans_count') ?? 0;
+      
+      _scanStatistics = {
+        'totalScans': totalScans,
+        'highRiskScans': highRiskScans,
+      };
+      
+      if (kDebugMode) {
+        print('Loaded scan statistics: Total: $totalScans, High-Risk: $highRiskScans');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading scan statistics: $e');
+      }
+      _scanStatistics = {'totalScans': 0, 'highRiskScans': 0};
+    }
   }
 
-  Widget _buildNutritionCard(
-    String value,
-    String label,
-    IconData icon,
-    Color iconColor,
-  ) {
-    return Container(
-      height: 100,
-      width: 175,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(15)),
-        color: Colors.white,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: GoogleFonts.poppins(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            FaIcon(icon, size: 50, color: iconColor),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScanItem(Map<String, dynamic> scan) {
-    final score = scan['score'] ?? 0;
-    final productName = scan['productName'] ?? 'Unknown Product';
+  // Updated to display mold scan data correctly
+  Widget _buildMoldScanItem(Map<String, dynamic> scan) {
+    final moldName = scan['moldName'] ?? 'Unknown Mold';
+    final harmScale = scan['harmScale'] ?? 0;
+    final isHarmful = scan['isHarmful'] ?? false;
     final imagePath = scan['imagePath'] as String?;
     final timestamp = scan['timestamp'] as int?;
 
@@ -188,11 +138,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 95,
                           fit: BoxFit.cover,
                         )
-                      : Image.asset(
-                          'assets/baby_food.png',
+                      : Container(
                           height: 95,
                           width: 95,
-                          fit: BoxFit.cover,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            FontAwesomeIcons.bacterium,
+                            color: Colors.grey[400],
+                            size: 40,
+                          ),
                         ),
                 ),
                 Column(
@@ -202,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(
                       width: 115,
                       child: Text(
-                        productName,
+                        moldName,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -212,15 +169,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     SizedBox(height: 5),
-                    SizedBox(
-                      width: 115,
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: isHarmful ? Colors.red[100] : Colors.green[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Text(
-                        timeText,
+                        isHarmful ? 'Harmful' : 'Safe',
                         style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey[600],
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: isHarmful ? Colors.red[700] : Colors.green[700],
                         ),
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      timeText,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
@@ -234,8 +204,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 75,
                   height: 75,
                   child: CircularProgressIndicator(
-                    value: score / 100,
-                    color: _getScoreColor(score),
+                    value: harmScale / 100,
+                    color: _getHarmScaleColor(harmScale),
                     strokeWidth: 8,
                     backgroundColor: Color.fromRGBO(230, 230, 230, 1),
                   ),
@@ -244,12 +214,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      score.toString(),
+                      harmScale.toString(),
                       style: GoogleFonts.poppins(
-                        fontSize: 25,
+                        fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: _getScoreColor(score),
+                        color: _getHarmScaleColor(harmScale),
                         height: 1.0,
+                      ),
+                    ),
+                    Text(
+                      'Risk',
+                      style: GoogleFonts.poppins(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: _getHarmScaleColor(harmScale),
                       ),
                     ),
                   ],
@@ -262,10 +240,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Color _getScoreColor(int score) {
-    if (score >= 80) return const Color(0xFF4CAF50); // Green
-    if (score >= 60) return const Color(0xFFFFC107); // Amber
-    return const Color(0xFFF44336); // Red
+  // Updated color scheme for harm scale
+  Color _getHarmScaleColor(int harmScale) {
+    if (harmScale >= 80) return const Color(0xFFD32F2F); // Red - Dangerous
+    if (harmScale >= 60) return const Color(0xFFFF5722); // Deep Orange - High Risk
+    if (harmScale >= 40) return const Color(0xFFF57C00); // Orange - Medium Risk
+    if (harmScale >= 20) return const Color(0xFFFBC02D); // Yellow - Low Risk
+    return const Color(0xFF4CAF50); // Green - Minimal Risk
   }
 
   Widget _buildEmptyScansPlaceholder() {
@@ -280,13 +261,13 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FaIcon(
-              FontAwesomeIcons.magnifyingGlass,
+              FontAwesomeIcons.bacterium,
               size: 40,
               color: Colors.grey[400],
             ),
             SizedBox(height: 10),
             Text(
-              'No scans yet',
+              'No mold scans yet',
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -294,8 +275,53 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Text(
-              'Tap "Scan" to get started',
+              'Tap "MoldAI" to get started',
               style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[500]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // New method to build statistics cards
+  Widget _buildStatisticsCard(String value, String label, IconData icon, Color color) {
+    return Container(
+      height: 80,
+      width: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        color: Colors.white,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FaIcon(icon, size: 16, color: color),
+                SizedBox(width: 6),
+                Text(
+                  value,
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -347,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Icon(
                     FontAwesomeIcons.house,
                     size: 20,
-                    color: Color.fromRGBO(63, 114, 66, 1),
+                    color: Color.fromRGBO(26, 188, 156, 1),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -355,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
-                      color: Color.fromRGBO(63, 114, 66, 1),
+                      color: Color.fromRGBO(26, 188, 156, 1),
                     ),
                   ),
                 ],
@@ -376,13 +402,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(
-                    FontAwesomeIcons.magnifyingGlass,
+                    FontAwesomeIcons.bacterium,
                     size: 20,
                     color: Colors.black,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Scan",
+                    "MoldAI",
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -442,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Image.asset(
                             'assets/logo_transparent.png',
-                            height: 30,
+                            height: 20,
                           ),
                           GestureDetector(
                             onTap: () {
@@ -462,8 +488,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       SizedBox(height: 25),
+                      
+                      // Scan Statistics Section
                       Text(
-                        "Today's nutrition >",
+                        "Scan Statistics >",
                         style: GoogleFonts.poppins(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -472,44 +500,38 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(height: 10),
                       if (_isLoading)
                         SizedBox(
-                          height: 100,
+                          height: 80,
                           child: Center(
                             child: CircularProgressIndicator(
-                              color: Color.fromRGBO(63, 114, 66, 1),
+                              color: Color.fromRGBO(26, 188, 156, 1),
                             ),
                           ),
                         )
                       else
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            spacing: 15.0,
-                            children: [
-                              _buildNutritionCard(
-                                _formatNutritionValue(
-                                  _todayNutrition?['protein'],
-                                ),
-                                "Protein",
-                                FontAwesomeIcons.egg,
-                                Color.fromRGBO(131, 131, 213, 1),
-                              ),
-                              _buildNutritionCard(
-                                _formatNutritionValue(
-                                  _todayNutrition?['carbs'],
-                                ),
-                                "Carbs",
-                                FontAwesomeIcons.breadSlice,
-                                Color.fromRGBO(217, 193, 115, 1),
-                              ),
-                              _buildNutritionCard(
-                                _formatNutritionValue(_todayNutrition?['fats']),
-                                "Fats",
-                                FontAwesomeIcons.fish,
-                                Color.fromRGBO(103, 185, 205, 1),
-                              ),
-                            ],
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildStatisticsCard(
+                              _scanStatistics['totalScans'].toString(),
+                              "Total Scans",
+                              FontAwesomeIcons.bacterium,
+                              Color.fromRGBO(26, 188, 156, 1),
+                            ),
+                            _buildStatisticsCard(
+                              _scanStatistics['highRiskScans'].toString(),
+                              "High Risk",
+                              FontAwesomeIcons.triangleExclamation,
+                              Color.fromRGBO(244, 67, 54, 1),
+                            ),
+                            _buildStatisticsCard(
+                              ((_scanStatistics['totalScans']! - _scanStatistics['highRiskScans']!)).toString(),
+                              "Safe Scans",
+                              FontAwesomeIcons.shieldHalved,
+                              Color.fromRGBO(76, 175, 80, 1),
+                            ),
+                          ],
                         ),
+                      
                       SizedBox(height: 25),
                       GestureDetector(
                         onTap: () {
@@ -535,9 +557,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               spacing: 16.25,
                               children: [
-                                FaIcon(FontAwesomeIcons.magnifyingGlass),
+                                FaIcon(FontAwesomeIcons.bacterium),
                                 Text(
-                                  "Scan & track baby food",
+                                  "Scan & identify mold",
                                   style: GoogleFonts.poppins(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
@@ -550,7 +572,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       SizedBox(height: 25),
                       Text(
-                        "Your Products >",
+                        "Recent Mold Scans >",
                         style: GoogleFonts.poppins(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -562,7 +584,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 125,
                           child: Center(
                             child: CircularProgressIndicator(
-                              color: Color.fromRGBO(63, 114, 66, 1),
+                              color: Color.fromRGBO(26, 188, 156, 1),
                             ),
                           ),
                         )
@@ -571,7 +593,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       else
                         Column(
                           children: _recentScans
-                              .map((scan) => _buildScanItem(scan))
+                              .map((scan) => _buildMoldScanItem(scan))
                               .toList(),
                         ),
                     ],

@@ -21,14 +21,14 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
     final deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(243, 243, 243, 1),
+      backgroundColor: const Color.fromRGBO(243, 243, 243, 1),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(deviceWidth * 0.05),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -38,7 +38,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                       Container(
                         width: deviceWidth * 0.9 - 120,
                         height: 7.5,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                           color: Color.fromRGBO(230, 230, 230, 1),
                         ),
@@ -46,7 +46,7 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                       Container(
                         width: (deviceWidth * 0.9 - 120) * (5 / 7),
                         height: 7.5,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.black,
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
@@ -56,9 +56,9 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                 ],
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
               Text(
-                'Make confident choices for your little one with Totsy.',
+                'Identify mold. Understand the risks. Take action with MoldAI.',
                 textAlign: TextAlign.left,
                 style: GoogleFonts.poppins(
                   fontSize: 30,
@@ -68,10 +68,12 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                   letterSpacing: -0.5,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
+
+              // Comparison Cards
               Container(
                 width: deviceWidth * 0.9,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(20)),
                 ),
@@ -79,19 +81,19 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 50),
+                    const SizedBox(height: 50),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 15,
                       children: [
+                        // Mold #1 (Low Risk)
                         Stack(
                           alignment: AlignmentDirectional.bottomCenter,
                           children: [
                             Container(
                               width: 125,
                               height: 200,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: Color.fromRGBO(243, 243, 243, 1),
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
@@ -100,9 +102,9 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  SizedBox(height: 15),
+                                  const SizedBox(height: 15),
                                   Text(
-                                    "Food #1",
+                                    "Mold #1",
                                     style: GoogleFonts.poppins(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w700,
@@ -114,15 +116,15 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                             Container(
                               width: 125,
                               height: 50,
-                              decoration: BoxDecoration(
-                                color: const Color.fromRGBO(225, 225, 225, 1),
+                              decoration: const BoxDecoration(
+                                color: Color.fromRGBO(225, 225, 225, 1),
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
                                 ),
                               ),
                               child: Center(
                                 child: Text(
-                                  "Low Nutrition",
+                                  "Low Risk",
                                   style: GoogleFonts.poppins(
                                     color: Colors.black,
                                     fontWeight: FontWeight.w500,
@@ -132,13 +134,17 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                             ),
                           ],
                         ),
+
+                        const SizedBox(width: 15),
+
+                        // Mold #2 (High Risk)
                         Stack(
                           alignment: AlignmentDirectional.bottomCenter,
                           children: [
                             Container(
                               width: 125,
                               height: 200,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: Color.fromRGBO(243, 243, 243, 1),
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
@@ -147,9 +153,9 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  SizedBox(height: 15),
+                                  const SizedBox(height: 15),
                                   Text(
-                                    "Food #2",
+                                    "Mold #2",
                                     style: GoogleFonts.poppins(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w700,
@@ -161,15 +167,15 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                             Container(
                               width: 125,
                               height: 150,
-                              decoration: BoxDecoration(
-                                color: Color.fromRGBO(63, 114, 66, 1),
+                              decoration: const BoxDecoration(
+                                color: Color.fromRGBO(200, 0, 0, 1),
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
                                 ),
                               ),
                               child: Center(
                                 child: Text(
-                                  "High in carbs, protein, fiber, and vitamins",
+                                  "High Risk:\nMay cause respiratory issues",
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
@@ -182,9 +188,10 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25),
+
+                    const SizedBox(height: 25),
                     Text(
-                      "Understand which food is the best\nfor your baby to support healthy growth.",
+                      "Quickly understand if mold in your home is harmless or a health concern, and learn the safest next steps.",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         color: Colors.black,
@@ -192,11 +199,12 @@ class _OnboardingScreenState extends State<EffectiveScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 25),
+                    const SizedBox(height: 25),
                   ],
                 ),
               ),
-              Spacer(),
+
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 height: 75,

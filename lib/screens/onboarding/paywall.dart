@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:totsy/routes/app.dart';
+import 'package:moldai/routes/app.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -486,13 +486,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
               Image.asset('assets/logo_transparent.png', width: 100),
               Spacer(flex: 2),
               Text(
-                "Give your baby\nthe best start.",
+                "Identify mold anywhere, instantly.",
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 35,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
-                  height: 1.2,
+                  height: 1.2, 
                   letterSpacing: -0.5,
                 ),
               ),
@@ -501,13 +501,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    FontAwesomeIcons.qrcode,
+                    FontAwesomeIcons.camera,
                     color: Colors.black,
                     size: 20,
                   ),
                   SizedBox(width: 10),
                   Text(
-                    "Scan baby food to check if it's healthy",
+                    "Instantly identify mold with camera",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 15,
@@ -524,13 +524,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    FontAwesomeIcons.chartLine,
+                    FontAwesomeIcons.exclamationTriangle,
                     color: Colors.black,
                     size: 20,
                   ),
                   SizedBox(width: 10),
                   Text(
-                    "Track your baby's daily nutrition",
+                    "Detailed health risk assessments",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 15,
@@ -547,13 +547,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    FontAwesomeIcons.shieldHeart,
+                    FontAwesomeIcons.clipboardList,
                     color: Colors.black,
                     size: 20,
                   ),
                   SizedBox(width: 10),
                   Text(
-                    "Get detailed ingredient analysis",
+                    "Receive remediation advice",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 15,
@@ -777,7 +777,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         )
                       : Text(
                          !_remoteConfigFreeTrialEnabled && isWeeklySelected ?
-                          'Try For 7 Days' : isWeeklySelected ? "Start Free Trial" : "Purchase",
+                          'Try for 7 days' : isWeeklySelected ? "Start Free Trial" : "Get Full Access",
                           style: GoogleFonts.poppins(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -836,7 +836,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      _launchURL('https://totsy-website.vercel.app/privacy');
+                      _launchURL('https://moldai-website.vercel.app/privacy');
                     },
                     child: Text(
                       "Privacy Policy",

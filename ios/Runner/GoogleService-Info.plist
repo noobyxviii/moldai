@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyCgEywm3ToBnr4Plw5V9G67WeUyebkJick</string>
+	<string>AIzaSyDHrYq45ZkFubzVjlGi7C8lGtEDiWac1BE</string>
 	<key>GCM_SENDER_ID</key>
-	<string>594538097125</string>
+	<string>4511951575</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>app.totsy.ios</string>
+	<string>app.moldai.ios</string>
 	<key>PROJECT_ID</key>
-	<string>totsy-aea16</string>
+	<string>moldai-53cee</string>
 	<key>STORAGE_BUCKET</key>
-	<string>totsy-aea16.firebasestorage.app</string>
+	<string>moldai-53cee.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:594538097125:ios:9f528b0a6966a8df47e70c</string>
+	<string>1:4511951575:ios:a6695b488fb5ba46cc5e92</string>
 </dict>
 </plist>

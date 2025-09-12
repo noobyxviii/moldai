@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "594538097125",
-    "project_id": "totsy-aea16",
-    "storage_bucket": "totsy-aea16.firebasestorage.app"
+    "project_number": "4511951575",
+    "project_id": "moldai-53cee",
+    "storage_bucket": "moldai-53cee.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:594538097125:android:2e07af132d96d03247e70c",
+        "mobilesdk_app_id": "1:4511951575:android:8657716bc355870ecc5e92",
         "android_client_info": {
-          "package_name": "app.totsy.android"
+          "package_name": "app.moldai.android"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCoLbKqydTJeHYzsp9Haqmi7J2nOmBvjxU"
+          "current_key": "AIzaSyCa2N92SLiKwn8xBBeCIrwQV6ysR19i7dg"
         }
       ],
       "services": {

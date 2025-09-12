@@ -108,7 +108,7 @@ class _OnboardingScreenState extends State<ReviewScreen> {
               Image.asset('assets/rating.png', height: 85),
               SizedBox(height: 35),
               Text(
-                "Totsy is backed by people like you.",
+                "MoldAI is backed by people like you.",
                 textAlign: TextAlign.left,
                 style: GoogleFonts.poppins(
                   fontSize: 18,
@@ -140,7 +140,7 @@ class _OnboardingScreenState extends State<ReviewScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Life changing!",
+                                    "Peace of mind!",
                                     textAlign: TextAlign.left,
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
@@ -173,7 +173,7 @@ class _OnboardingScreenState extends State<ReviewScreen> {
                                   ),
                                   SizedBox(height: 15),
                                   Text(
-                                    "As a first-time mom, I was so overwhelmed by all the baby food options. This app is amazing - I just scan and instantly know if something has harmful ingredients.",
+                                    "We found mold in our basement and I panicked not knowing if it was dangerous. With this app, I scanned it and instantly learned it was low risk. Huge relief for my family.",
                                     textAlign: TextAlign.left,
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
@@ -207,7 +207,7 @@ class _OnboardingScreenState extends State<ReviewScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Perfect for parents",
+                                    "Essential for homes!",
                                     textAlign: TextAlign.left,
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
@@ -240,7 +240,7 @@ class _OnboardingScreenState extends State<ReviewScreen> {
                                   ),
                                   SizedBox(height: 15),
                                   Text(
-                                    "Shopping for baby food used to take forever reading every label. Now I just scan with Totsy and know immediately what's safe. Highly recommend to all parents!",
+                                    "I used to waste hours googling mold photos and symptoms. Now I just scan with MoldAI and get a clear answer right away. Saves me time and worry. Highly recommend!",
                                     textAlign: TextAlign.left,
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
@@ -274,7 +274,7 @@ class _OnboardingScreenState extends State<ReviewScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Finally feel confident",
+                                    "Finally feel safe",
                                     textAlign: TextAlign.left,
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
@@ -307,7 +307,7 @@ class _OnboardingScreenState extends State<ReviewScreen> {
                                   ),
                                   SizedBox(height: 15),
                                   Text(
-                                    "I love how this app explains why certain ingredients might be harmful and suggests better alternatives. It's not just scanning - it's educating me to be a better parent. Worth every penny!",
+                                    "I love how MoldAI doesn’t just identify mold but explains why it’s harmful and what steps to take. It makes me feel in control of protecting my home and my health.",
                                     textAlign: TextAlign.left,
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,

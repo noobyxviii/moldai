@@ -50,19 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCoLbKqydTJeHYzsp9Haqmi7J2nOmBvjxU',
-    appId: '1:594538097125:android:2e07af132d96d03247e70c',
-    messagingSenderId: '594538097125',
-    projectId: 'totsy-aea16',
-    storageBucket: 'totsy-aea16.firebasestorage.app',
+    apiKey: 'AIzaSyCa2N92SLiKwn8xBBeCIrwQV6ysR19i7dg',
+    appId: '1:4511951575:android:8657716bc355870ecc5e92',
+    messagingSenderId: '4511951575',
+    projectId: 'moldai-53cee',
+    storageBucket: 'moldai-53cee.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCgEywm3ToBnr4Plw5V9G67WeUyebkJick',
-    appId: '1:594538097125:ios:9f528b0a6966a8df47e70c',
-    messagingSenderId: '594538097125',
-    projectId: 'totsy-aea16',
-    storageBucket: 'totsy-aea16.firebasestorage.app',
-    iosBundleId: 'app.totsy.ios',
+    apiKey: 'AIzaSyDHrYq45ZkFubzVjlGi7C8lGtEDiWac1BE',
+    appId: '1:4511951575:ios:a6695b488fb5ba46cc5e92',
+    messagingSenderId: '4511951575',
+    projectId: 'moldai-53cee',
+    storageBucket: 'moldai-53cee.firebasestorage.app',
+    iosBundleId: 'app.moldai.ios',
   );
+
 }

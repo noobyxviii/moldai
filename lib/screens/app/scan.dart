@@ -12,42 +12,36 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 
-class FoodScannerScreen extends StatefulWidget {
-  final Function(double protein, double fiber) onNutritionUpdate;
+class MoldScannerScreen extends StatefulWidget {
   final PageController controller;
   final int pageIndex;
 
-  const FoodScannerScreen({
+  const MoldScannerScreen({
     super.key,
-    required this.onNutritionUpdate,
     required this.controller,
     required this.pageIndex,
   });
 
   @override
-  State<FoodScannerScreen> createState() => _FoodScannerScreenState();
+  State<MoldScannerScreen> createState() => _MoldScannerScreenState();
 }
 
-class _FoodScannerScreenState extends State<FoodScannerScreen> {
+class _MoldScannerScreenState extends State<MoldScannerScreen> {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
   bool _isProcessing = false;
   String? _errorMessage;
-  String? _debugMessage; // Add debug message
+  String? _debugMessage;
 
-  // Baby food analysis results
+  // Mold analysis results
   Map<String, dynamic>? _analysisResults;
   bool _showResults = false;
   String? _capturedImagePath;
 
-  // Baby data
-  Map<String, dynamic>? _babyData;
-
   @override
   void initState() {
     super.initState();
-    _loadBabyData();
     _initializeCamera();
   }
 
@@ -55,67 +49,6 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
   void dispose() {
     _cameraController?.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadBabyData() async {
-    try {
-      setState(() {
-        _debugMessage = "Loading baby data...";
-      });
-
-      final prefs = await SharedPreferences.getInstance();
-      final allergiesJson = prefs.getString('allergies');
-      final age = prefs.getInt('age');
-      final weight = prefs.getDouble('weight');
-
-      if (age != null && weight != null) {
-        _babyData = {
-          'age': age,
-          'weight': weight,
-          'allergies': allergiesJson != null
-              ? json.decode(allergiesJson)
-              : <String>[],
-          'gender': 'not_specified',
-          'height': 70.0,
-          'healthConditions': <String>[],
-        };
-        setState(() {
-          _debugMessage = "Baby data loaded successfully";
-        });
-      } else {
-        // Create default baby data for testing
-        _babyData = {
-          'age': 12, // 12 months default
-          'weight': 10.0, // 10kg default
-          'allergies': <String>[],
-          'gender': 'not_specified',
-          'height': 70.0,
-          'healthConditions': <String>[],
-        };
-        setState(() {
-          _debugMessage =
-              "Using default baby data (age: 12 months, weight: 10kg)";
-        });
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        if (kDebugMode) {
-        print('Error loading baby data: $e');
-      }
-      }
-      // Create fallback data
-      _babyData = {
-        'age': 12,
-        'weight': 10.0,
-        'allergies': <String>[],
-        'gender': 'not_specified',
-        'height': 70.0,
-        'healthConditions': <String>[],
-      };
-      setState(() {
-        _debugMessage = "Error loading baby data, using defaults: $e";
-      });
-    }
   }
 
   Future<void> _initializeCamera() async {
@@ -159,7 +92,7 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
         if (e.toString().contains('permission') ||
             e.toString().contains('Permission')) {
           _errorMessage =
-              'Camera permission is required to scan food. Please grant permission and try again.';
+              'Camera permission is required to scan mold. Please grant permission and try again.';
         } else {
           _errorMessage = 'Failed to initialize camera: ${e.toString()}';
         }
@@ -168,157 +101,146 @@ class _FoodScannerScreenState extends State<FoodScannerScreen> {
     }
   }
 
-Future<void> _captureAndAnalyze() async {
-  if (kDebugMode) {
-    print("🔥 _captureAndAnalyze called!");
-  }
-
-  // Check camera controller
-  if (_cameraController == null) {
+  Future<void> _captureAndAnalyze() async {
     if (kDebugMode) {
-      print("❌ Camera controller is null");
-    }
-    setState(() {
-      _errorMessage = "Camera controller is null";
-      _debugMessage = "Camera controller not initialized";
-    });
-    return;
-  }
-
-  if (!_cameraController!.value.isInitialized) {
-    if (kDebugMode) {
-      print("❌ Camera is not initialized");
-    }
-    setState(() {
-      _errorMessage = "Camera is not initialized";
-      _debugMessage = "Camera not ready";
-    });
-    return;
-  }
-
-  // Check baby data
-  if (_babyData == null) {
-    if (kDebugMode) {
-      print("❌ Baby data is null");
-    }
-    setState(() {
-      _errorMessage = 'Baby data not found. Please set up your baby profile first.';
-      _debugMessage = "No baby data available";
-    });
-    return;
-  }
-
-  if (kDebugMode) {
-    print("✅ All checks passed, starting capture process");
-  }
-  
-  setState(() {
-    _isProcessing = true;
-    _errorMessage = null;
-    _debugMessage = "Capturing image...";
-  });
-
-  XFile? capturedImage;
-  String? permanentImagePath;
-
-  try {
-    // Capture image
-    if (kDebugMode) {
-      print("📸 Taking picture...");
-    }
-    capturedImage = await _cameraController!.takePicture();
-    if (kDebugMode) {
-      print("✅ Picture taken: ${capturedImage.path}");
+      print("🔥 _captureAndAnalyze called!");
     }
 
-    // Add haptic feedback
-    HapticFeedback.mediumImpact();
-
-    setState(() {
-      _debugMessage = "Image captured, copying to permanent location...";
-    });
-
-    // Immediately copy the image to a permanent location
-    final appDir = await getApplicationDocumentsDirectory();
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    permanentImagePath = '${appDir.path}/temp_scan_$timestamp.jpg';
-
-    // Ensure source file exists
-    final sourceFile = File(capturedImage.path);
-    if (!await sourceFile.exists()) {
-      throw Exception("Captured image file does not exist at ${capturedImage.path}");
+    // Check camera controller
+    if (_cameraController == null) {
+      if (kDebugMode) {
+        print("❌ Camera controller is null");
+      }
+      setState(() {
+        _errorMessage = "Camera controller is null";
+        _debugMessage = "Camera controller not initialized";
+      });
+      return;
     }
 
-    // Copy to permanent location immediately
-    final permanentFile = File(permanentImagePath);
-    await sourceFile.copy(permanentImagePath);
-
-    if (!await permanentFile.exists()) {
-      throw Exception("Failed to create permanent copy of image");
+    if (!_cameraController!.value.isInitialized) {
+      if (kDebugMode) {
+        print("❌ Camera is not initialized");
+      }
+      setState(() {
+        _errorMessage = "Camera is not initialized";
+        _debugMessage = "Camera not ready";
+      });
+      return;
     }
-
-    final fileSize = await permanentFile.length();
-    if (kDebugMode) {
-      print("📁 Permanent image file size: $fileSize bytes at $permanentImagePath");
-    }
-
-    setState(() {
-      _debugMessage = "Image saved, analyzing...";
-    });
-
-    // Send the permanent file for analysis
-    if (kDebugMode) {
-      print("🌐 Sending to API...");
-    }
-    final results = await _analyzeBabyFood(permanentFile);
-    if (kDebugMode) {
-      print("✅ API response received");
-    }
-
-    // Save the scan result using the permanent image path
-    final finalImagePath = await _saveScanResult(results, permanentImagePath);
-
-    setState(() {
-      _analysisResults = results;
-      _capturedImagePath = finalImagePath;
-      _showResults = true;
-      _isProcessing = false;
-      _debugMessage = "Analysis completed successfully";
-    });
 
     if (kDebugMode) {
-      print("✅ Analysis completed and UI updated");
-    }
-
-  } catch (e) {
-    if (kDebugMode) {
-      print("❌ Error in capture and analyze: $e");
+      print("✅ All checks passed, starting capture process");
     }
     
-    // Clean up temporary file if it was created
-    if (permanentImagePath != null) {
-      try {
-        final tempFile = File(permanentImagePath);
-        if (await tempFile.exists()) {
-          await tempFile.delete();
-        }
-      } catch (cleanupError) {
-        if (kDebugMode) {
-          print("Warning: Failed to cleanup temp file: $cleanupError");
+    setState(() {
+      _isProcessing = true;
+      _errorMessage = null;
+      _debugMessage = "Capturing image...";
+    });
+
+    XFile? capturedImage;
+    String? permanentImagePath;
+
+    try {
+      // Capture image
+      if (kDebugMode) {
+        print("📸 Taking picture...");
+      }
+      capturedImage = await _cameraController!.takePicture();
+      if (kDebugMode) {
+        print("✅ Picture taken: ${capturedImage.path}");
+      }
+
+      // Add haptic feedback
+      HapticFeedback.mediumImpact();
+
+      setState(() {
+        _debugMessage = "Image captured, copying to permanent location...";
+      });
+
+      // Immediately copy the image to a permanent location
+      final appDir = await getApplicationDocumentsDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      permanentImagePath = '${appDir.path}/temp_scan_$timestamp.jpg';
+
+      // Ensure source file exists
+      final sourceFile = File(capturedImage.path);
+      if (!await sourceFile.exists()) {
+        throw Exception("Captured image file does not exist at ${capturedImage.path}");
+      }
+
+      // Copy to permanent location immediately
+      final permanentFile = File(permanentImagePath);
+      await sourceFile.copy(permanentImagePath);
+
+      if (!await permanentFile.exists()) {
+        throw Exception("Failed to create permanent copy of image");
+      }
+
+      final fileSize = await permanentFile.length();
+      if (kDebugMode) {
+        print("📁 Permanent image file size: $fileSize bytes at $permanentImagePath");
+      }
+
+      setState(() {
+        _debugMessage = "Image saved, analyzing mold...";
+      });
+
+      // Send the permanent file for analysis
+      if (kDebugMode) {
+        print("🌐 Sending to API...");
+      }
+      final results = await _analyzeMold(permanentFile);
+      if (kDebugMode) {
+        print("✅ API response received");
+      }
+
+      // Save the scan result using the permanent image path
+      final finalImagePath = await _saveScanResult(results, permanentImagePath);
+
+      setState(() {
+        _analysisResults = results;
+        _capturedImagePath = finalImagePath;
+        _showResults = true;
+        _isProcessing = false;
+        _debugMessage = "Analysis completed successfully";
+      });
+
+      if (kDebugMode) {
+        print("✅ Analysis completed and UI updated");
+      }
+
+    } catch (e) {
+      if (kDebugMode) {
+        print("❌ Error in capture and analyze: $e");
+      }
+      
+      // Clean up temporary file if it was created
+      if (permanentImagePath != null) {
+        try {
+          final tempFile = File(permanentImagePath);
+          if (await tempFile.exists()) {
+            await tempFile.delete();
+          }
+        } catch (cleanupError) {
+          if (kDebugMode) {
+            print("Warning: Failed to cleanup temp file: $cleanupError");
+          }
         }
       }
-    }
 
-    setState(() {
-      _errorMessage = 'Failed to analyze food: ${e.toString()}';
-      _isProcessing = false;
-      _debugMessage = "Error: $e";
-    });
+      setState(() {
+        _errorMessage = 'Failed to analyze mold: ${e.toString()}';
+        _isProcessing = false;
+        _debugMessage = "Error: $e";
+      });
+    }
   }
-}
-  Future<Map<String, dynamic>> _analyzeBabyFood(File imageFile) async {
+
+  Future<Map<String, dynamic>> _analyzeMold(File imageFile) async {
     const String cloudflareWorkerUrl =
-        'https://curly-morning-0115.xviii2008.workers.dev/analyze-baby-food';
+        'https://falling-wave-38ac.xviii2008.workers.dev/analyze-mold';
 
     try {
       if (kDebugMode) {
@@ -388,7 +310,6 @@ Future<void> _captureAndAnalyze() async {
         final multipartResult = await _sendMultipartRequest(
           cloudflareWorkerUrl,
           imageBytes,
-          _babyData!,
         );
         return multipartResult;
       } catch (e) {
@@ -405,7 +326,6 @@ Future<void> _captureAndAnalyze() async {
         final base64Result = await _sendBase64Request(
           cloudflareWorkerUrl,
           imageBytes,
-          _babyData!,
         );
         return base64Result;
       } catch (e) {
@@ -423,18 +343,15 @@ Future<void> _captureAndAnalyze() async {
         Uint8List compressedBytes = imageBytes;
         if (imageBytes.length > 1024 * 1024) {
           // 1MB
-          // Simple compression by reducing quality (this is a basic approach)
           if (kDebugMode) {
             print("🗜️ Compressing large image...");
           }
-          compressedBytes =
-              imageBytes; // You might want to implement actual compression here
+          compressedBytes = imageBytes; // You might want to implement actual compression here
         }
 
         final compressedResult = await _sendBase64Request(
           cloudflareWorkerUrl,
           compressedBytes,
-          _babyData!,
         );
         return compressedResult;
       } catch (e) {
@@ -456,7 +373,6 @@ Future<void> _captureAndAnalyze() async {
   Future<Map<String, dynamic>> _sendMultipartRequest(
     String url,
     Uint8List imageBytes,
-    Map<String, dynamic> babyData,
   ) async {
     final request = http.MultipartRequest('POST', Uri.parse(url));
 
@@ -467,25 +383,13 @@ Future<void> _captureAndAnalyze() async {
     final multipartFile = http.MultipartFile.fromBytes(
       'image',
       imageBytes,
-      filename: 'baby_food_image.jpg',
+      filename: 'mold_image.jpg',
     );
     request.files.add(multipartFile);
 
-    // Add baby data
-    final babyDataJson = json.encode(babyData);
-    if (kDebugMode) {
-      print("👶 Baby data: $babyDataJson");
-    }
-    request.fields['babyData'] = babyDataJson;
-
     // Log request details
     if (kDebugMode) {
-      print("📋 Request fields: ${request.fields.keys.toList()}");
-    }
-    if (kDebugMode) {
-      print(
-        "📋 Request files: ${request.files.map((f) => '${f.field}: ${f.filename} (${f.length} bytes)').toList()}",
-      );
+      print("📋 Request files: ${request.files.map((f) => '${f.field}: ${f.filename} (${f.length} bytes)').toList()}");
     }
 
     // Send request with timeout
@@ -500,7 +404,6 @@ Future<void> _captureAndAnalyze() async {
   Future<Map<String, dynamic>> _sendBase64Request(
     String url,
     Uint8List imageBytes,
-    Map<String, dynamic> babyData,
   ) async {
     final base64Image = base64Encode(imageBytes);
     if (kDebugMode) {
@@ -509,8 +412,7 @@ Future<void> _captureAndAnalyze() async {
 
     final requestBody = {
       'image': base64Image,
-      'babyData': babyData,
-      'imageFormat': 'jpeg', // or detect format
+      'imageFormat': 'jpeg',
     };
 
     final response = await http
@@ -569,159 +471,223 @@ Future<void> _captureAndAnalyze() async {
     }
   }
 
-Future<String> _saveScanResult(
-  Map<String, dynamic> result,
-  String imagePath,
-) async {
-  try {
-    if (kDebugMode) {
-      print("💾 Saving scan result...");
-    }
-    final prefs = await SharedPreferences.getInstance();
-
-    // Get existing scans
-    final existingScansJson = prefs.getString('recent_scans');
-    List<Map<String, dynamic>> recentScans = [];
-
-    if (existingScansJson != null) {
-      final decoded = json.decode(existingScansJson);
-      recentScans = List<Map<String, dynamic>>.from(decoded);
-    }
-
-    // Check if source image file exists
-    final sourceFile = File(imagePath);
-    if (!await sourceFile.exists()) {
-      if (kDebugMode) {
-        print("❌ Source image file does not exist: $imagePath");
-      }
-      throw Exception('Source image file no longer exists');
-    }
-
-    // Save image to app directory
-    final appDir = await getApplicationDocumentsDirectory();
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final savedImagePath = '${appDir.path}/scan_$timestamp.jpg';
-
-    // Ensure the destination directory exists
-    final destinationDir = Directory(appDir.path);
-    if (!await destinationDir.exists()) {
-      await destinationDir.create(recursive: true);
-    }
-
-    // Copy the file
+  // NEW: Method to update scan statistics
+  Future<void> _updateScanStatistics(int harmScale) async {
     try {
-      await sourceFile.copy(savedImagePath);
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Get current total scans count
+      final totalScans = prefs.getInt('total_scans_count') ?? 0;
+      
+      // Get current high-risk scans count (75+ rating)
+      final highRiskScans = prefs.getInt('high_risk_scans_count') ?? 0;
+      
+      // Increment total scans
+      final newTotalScans = totalScans + 1;
+      await prefs.setInt('total_scans_count', newTotalScans);
+      
+      // Increment high-risk scans if harm scale is 75 or higher
+      if (harmScale >= 75) {
+        final newHighRiskScans = highRiskScans + 1;
+        await prefs.setInt('high_risk_scans_count', newHighRiskScans);
+        
+        if (kDebugMode) {
+          print("📊 Updated statistics: Total: $newTotalScans, High-Risk: $newHighRiskScans");
+        }
+      } else {
+        if (kDebugMode) {
+          print("📊 Updated statistics: Total: $newTotalScans, High-Risk: $highRiskScans (no change)");
+        }
+      }
+      
+    } catch (e) {
       if (kDebugMode) {
-        print("✅ Image copied successfully to: $savedImagePath");
+        print("❌ Error updating scan statistics: $e");
+      }
+      // Don't throw error here as it's not critical to the main functionality
+    }
+  }
+
+  // NEW: Method to get scan statistics
+  Future<Map<String, int>> getScanStatistics() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      final totalScans = prefs.getInt('total_scans_count') ?? 0;
+      final highRiskScans = prefs.getInt('high_risk_scans_count') ?? 0;
+      
+      return {
+        'totalScans': totalScans,
+        'highRiskScans': highRiskScans,
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print("❌ Error getting scan statistics: $e");
+      }
+      return {
+        'totalScans': 0,
+        'highRiskScans': 0,
+      };
+    }
+  }
+
+  // NEW: Method to reset scan statistics (useful for testing or user preference)
+  Future<void> resetScanStatistics() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('total_scans_count');
+      await prefs.remove('high_risk_scans_count');
+      
+      if (kDebugMode) {
+        print("🔄 Scan statistics reset");
       }
     } catch (e) {
       if (kDebugMode) {
-        print("❌ Failed to copy image: $e");
+        print("❌ Error resetting scan statistics: $e");
       }
-      // Alternative approach: Read bytes and write to new file
+    }
+  }
+
+  Future<String> _saveScanResult(
+    Map<String, dynamic> result,
+    String imagePath,
+  ) async {
+    try {
+      if (kDebugMode) {
+        print("💾 Saving scan result...");
+      }
+      final prefs = await SharedPreferences.getInstance();
+
+      // Get harm scale for statistics update
+      final harmScale = (result['harmScale'] ?? 0) as int;
+
+      // Update scan statistics BEFORE saving the result
+      await _updateScanStatistics(harmScale);
+
+      // Get existing scans
+      final existingScansJson = prefs.getString('recent_mold_scans');
+      List<Map<String, dynamic>> recentScans = [];
+
+      if (existingScansJson != null) {
+        final decoded = json.decode(existingScansJson);
+        recentScans = List<Map<String, dynamic>>.from(decoded);
+      }
+
+      // Check if source image file exists
+      final sourceFile = File(imagePath);
+      if (!await sourceFile.exists()) {
+        if (kDebugMode) {
+          print("❌ Source image file does not exist: $imagePath");
+        }
+        throw Exception('Source image file no longer exists');
+      }
+
+      // Save image to app directory
+      final appDir = await getApplicationDocumentsDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final savedImagePath = '${appDir.path}/mold_scan_$timestamp.jpg';
+
+      // Ensure the destination directory exists
+      final destinationDir = Directory(appDir.path);
+      if (!await destinationDir.exists()) {
+        await destinationDir.create(recursive: true);
+      }
+
+      // Copy the file
       try {
-        final imageBytes = await sourceFile.readAsBytes();
-        final destinationFile = File(savedImagePath);
-        await destinationFile.writeAsBytes(imageBytes);
+        await sourceFile.copy(savedImagePath);
         if (kDebugMode) {
-          print("✅ Image saved using bytes approach: $savedImagePath");
+          print("✅ Image copied successfully to: $savedImagePath");
         }
-      } catch (bytesError) {
+      } catch (e) {
         if (kDebugMode) {
-          print("❌ Bytes approach also failed: $bytesError");
+          print("❌ Failed to copy image: $e");
         }
-        throw Exception('Failed to save image: $bytesError');
+        // Alternative approach: Read bytes and write to new file
+        try {
+          final imageBytes = await sourceFile.readAsBytes();
+          final destinationFile = File(savedImagePath);
+          await destinationFile.writeAsBytes(imageBytes);
+          if (kDebugMode) {
+            print("✅ Image saved using bytes approach: $savedImagePath");
+          }
+        } catch (bytesError) {
+          if (kDebugMode) {
+            print("❌ Bytes approach also failed: $bytesError");
+          }
+          throw Exception('Failed to save image: $bytesError');
+        }
       }
-    }
 
-    // Verify the saved file exists
-    final savedFile = File(savedImagePath);
-    if (!await savedFile.exists()) {
-      throw Exception('Saved image file was not created successfully');
-    }
+      // Verify the saved file exists
+      final savedFile = File(savedImagePath);
+      if (!await savedFile.exists()) {
+        throw Exception('Saved image file was not created successfully');
+      }
 
-    // Create new scan entry
-    final newScan = {
-      'score': result['score'] ?? 0,
-      'productName': result['productName'] ?? 'Unknown Product',
-      'manufacturer': result['manufacturer'] ?? '',
-      'imagePath': savedImagePath,
-      'timestamp': timestamp,
-    };
+      // Create new scan entry
+      final newScan = {
+        'moldName': result['moldName'] ?? 'Unknown Mold',
+        'harmScale': result['harmScale'] ?? 0,
+        'isHarmful': result['isHarmful'] ?? false,
+        'confidence': result['confidence'] ?? 'low',
+        'location': result['location'] ?? 'Unknown',
+        'imagePath': savedImagePath,
+        'timestamp': timestamp,
+      };
 
-    // Add to beginning of list
-    recentScans.insert(0, newScan);
+      // Add to beginning of list
+      recentScans.insert(0, newScan);
 
-    // Keep only last 3 scans
-    if (recentScans.length > 3) {
-      // Delete old image files
-      for (int i = 3; i < recentScans.length; i++) {
-        final oldImagePath = recentScans[i]['imagePath'];
-        if (oldImagePath != null) {
-          try {
-            final oldFile = File(oldImagePath);
-            if (await oldFile.exists()) {
-              await oldFile.delete();
-            }
-          } catch (e) {
-            if (kDebugMode) {
-              print('Error deleting old image: $e');
+      // Keep only last 3 scans
+      if (recentScans.length > 3) {
+        // Delete old image files
+        for (int i = 3; i < recentScans.length; i++) {
+          final oldImagePath = recentScans[i]['imagePath'];
+          if (oldImagePath != null) {
+            try {
+              final oldFile = File(oldImagePath);
+              if (await oldFile.exists()) {
+                await oldFile.delete();
+              }
+            } catch (e) {
+              if (kDebugMode) {
+                print('Error deleting old image: $e');
+              }
             }
           }
         }
+        recentScans = recentScans.take(3).toList();
       }
-      recentScans = recentScans.take(3).toList();
-    }
 
-    // Save updated scans
-    await prefs.setString('recent_scans', json.encode(recentScans));
-    if (kDebugMode) {
-      print("✅ Scan result saved");
+      // Save updated scans
+      await prefs.setString('recent_mold_scans', json.encode(recentScans));
+      if (kDebugMode) {
+        print("✅ Scan result saved");
+      }
+      return savedImagePath;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error saving scan result: $e');
+      }
+      throw Exception('Failed to save scan result: ${e.toString()}');
     }
-    return savedImagePath;
-  } catch (e) {
-    if (kDebugMode) {
-      print('Error saving scan result: $e');
-    }
-    throw Exception('Failed to save scan result: ${e.toString()}');
   }
-}
+
   void _confirmResults() async {
     if (_analysisResults != null) {
       try {
-        // Extract nutritional data if available
-        final nutritionalInfo =
-            _analysisResults!['nutritionalInfo'] as Map<String, dynamic>?;
-        double protein = 0.0;
-        double carbs = 0.0;
-        double fats = 0.0;
-
-        if (nutritionalInfo != null) {
-          // Parse protein value (e.g., "2-4 g" -> take average)
-          final proteinStr = nutritionalInfo['protein']?.toString() ?? '0 g';
-          protein = _parseNutritionalValue(proteinStr);
-
-          // Parse carbs value
-          final carbsStr = nutritionalInfo['carbs']?.toString() ?? '0 g';
-          carbs = _parseNutritionalValue(carbsStr);
-
-          // Parse fats value
-          final fatsStr = nutritionalInfo['fat']?.toString() ?? '0 g';
-          fats = _parseNutritionalValue(fatsStr);
-        }
-
-        await _saveNutritionData(protein, carbs, fats);
-
-        // Show success message
+        // Show success message with statistics
+        final stats = await getScanStatistics();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Baby food analysis saved successfully!',
+                'Mold analysis saved! Total scans: ${stats['totalScans']}, High-risk: ${stats['highRiskScans']}',
                 style: GoogleFonts.poppins(),
               ),
               backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
+              duration: const Duration(seconds: 3),
             ),
           );
         }
@@ -740,66 +706,6 @@ Future<String> _saveScanResult(
     }
   }
 
-  Future<void> _saveNutritionData(double protein, double carbs, double fats) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final today = DateTime.now();
-      final todayDateString = "${today.year}-${today.month}-${today.day}";
-      const dataKey = 'daily_nutrition_data';
-      const dateKey = 'last_saved_date';
-
-      String? lastSavedDate = prefs.getString(dateKey);
-
-      Map<String, dynamic> todayData = {};
-
-      if (lastSavedDate == todayDateString) {
-        // Same day, get current values
-        final existingDataString = prefs.getString(dataKey);
-        if (existingDataString != null) {
-          todayData = json.decode(existingDataString);
-        }
-      }
-      // If it's a new day, todayData will be empty, effectively resetting.
-
-      double currentProtein = (todayData['protein'] ?? 0.0).toDouble();
-      double currentCarbs = (todayData['carbs'] ?? 0.0).toDouble();
-      double currentFats = (todayData['fats'] ?? 0.0).toDouble();
-
-      double newProtein = currentProtein + protein;
-      double newCarbs = currentCarbs + carbs;
-      double newFats = currentFats + fats;
-
-      todayData['protein'] = newProtein;
-      todayData['carbs'] = newCarbs;
-      todayData['fats'] = newFats;
-
-      await prefs.setString(dataKey, json.encode(todayData));
-      await prefs.setString(dateKey, todayDateString);
-
-      // Update the callback to pass the correct values
-      widget.onNutritionUpdate(newProtein, newCarbs); // Or adjust as needed
-    } catch (e) {
-      throw Exception('Failed to save nutrition data: ${e.toString()}');
-    }
-  }
-  double _parseNutritionalValue(String value) {
-    try {
-      // Remove 'g' and other units, handle ranges like "2-4 g"
-      final cleanValue = value.replaceAll(RegExp(r'[^\d.-]'), '');
-      if (cleanValue.contains('-')) {
-        final parts = cleanValue.split('-');
-        if (parts.length == 2) {
-          final min = double.tryParse(parts[0]) ?? 0.0;
-          final max = double.tryParse(parts[1]) ?? 0.0;
-          return (min + max) / 2; // Return average
-        }
-      }
-      return double.tryParse(cleanValue) ?? 0.0;
-    } catch (e) {
-      return 0.0;
-    }
-  }
-
   void _retakePhoto() {
     setState(() {
       _showResults = false;
@@ -808,12 +714,21 @@ Future<String> _saveScanResult(
     });
   }
 
-  Color _getScoreColor(int score) {
-    if (score >= 80) return const Color(0xFF4CAF50); // Green
-    if (score >= 60) return const Color(0xFFFFC107); // Amber
-    return const Color(0xFFF44336); // Red
+  Color _getHarmScaleColor(int harmScale) {
+    if (harmScale >= 80) return const Color(0xFFD32F2F); // Red - Dangerous
+    if (harmScale >= 60) return const Color(0xFFFF5722); // Deep Orange - High Risk
+    if (harmScale >= 40) return const Color(0xFFF57C00); // Orange - Medium Risk
+    if (harmScale >= 20) return const Color(0xFFFBC02D); // Yellow - Low Risk
+    return const Color(0xFF4CAF50); // Green - Minimal Risk
   }
 
+  String _getHarmScaleText(int harmScale) {
+    if (harmScale >= 80) return 'Dangerous';
+    if (harmScale >= 60) return 'High Risk';
+    if (harmScale >= 40) return 'Medium Risk';
+    if (harmScale >= 20) return 'Low Risk';
+    return 'Minimal Risk';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -861,7 +776,7 @@ Future<String> _saveScanResult(
                       ),
                     ),
                     Text(
-                      'Totsy',
+                      'MoldAI',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 20,
@@ -880,18 +795,17 @@ Future<String> _saveScanResult(
           // Processing Overlay
           if (_isProcessing)
             Container(
-              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.7),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(
-                      color: Color.fromRGBO(63, 114, 66, 1),
+                      color: Color.fromRGBO(26, 188, 156, 1),
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      _debugMessage ?? 'Analyzing baby food...',
+                      _debugMessage ?? 'Analyzing mold...',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 16,
@@ -923,7 +837,7 @@ Future<String> _saveScanResult(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
-                'Align your baby food with the frame',
+                'Align the suspected mold with the frame',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
@@ -946,12 +860,15 @@ Future<String> _saveScanResult(
   }
 
   Widget _buildResultsView(size) {
-    final score = _analysisResults!['score'] ?? 0;
-    final productName = _analysisResults!['productName'] ?? 'Unknown Product';
-    final manufacturer = _analysisResults!['manufacturer'] ?? '';
+    final moldName = _analysisResults!['moldName'] ?? 'Unknown Mold';
+    final commonName = _analysisResults!['commonName'] ?? '';
+    final harmScale = (_analysisResults!['harmScale'] ?? 0) as int;
+    final isHarmful = _analysisResults!['isHarmful'] ?? false;
+    final confidence = _analysisResults!['confidence'] ?? 'low';
+    final location = _analysisResults!['location'] ?? 'Unknown';
     final summary = _analysisResults!['summary'] ?? 'Analysis completed';
-    final nutritionalInfo =
-        _analysisResults!['nutritionalInfo'] as Map<String, dynamic>?;
+    final healthRisks = List<String>.from(_analysisResults!['healthRisks'] ?? []);
+    final removalInstructions = _analysisResults!['removalInstructions'] as Map<String, dynamic>?;
 
     return Container(
       width: double.infinity,
@@ -967,7 +884,10 @@ Future<String> _saveScanResult(
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Image.asset('assets/logo_transparent.png', height: 30),
+                  Image.asset(
+                            'assets/logo_transparent.png',
+                            height: 30,
+                          ),
                 ],
               ),
               const SizedBox(height: 25),
@@ -1022,20 +942,20 @@ Future<String> _saveScanResult(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        productName,
+                        moldName,
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
                         ),
                       ),
-                      if (manufacturer.isNotEmpty) ...[
+                      if (commonName.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
-                          manufacturer,
+                          commonName,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: Colors.black,
+                            color: Colors.grey[600],
                           ),
                         ),
                       ],
@@ -1048,7 +968,7 @@ Future<String> _saveScanResult(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Protein",
+                                "Harmful",
                                 textAlign: TextAlign.left,
                                 style: GoogleFonts.poppins(
                                   fontSize: 15,
@@ -1058,7 +978,7 @@ Future<String> _saveScanResult(
                               ),
                               SizedBox(height: 5),
                               Text(
-                                "Fat",
+                                "Confidence",
                                 textAlign: TextAlign.left,
                                 style: GoogleFonts.poppins(
                                   fontSize: 15,
@@ -1068,17 +988,7 @@ Future<String> _saveScanResult(
                               ),
                               SizedBox(height: 5),
                               Text(
-                                "Carbs",
-                                textAlign: TextAlign.left,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                "Fiber",
+                                "Location",
                                 textAlign: TextAlign.left,
                                 style: GoogleFonts.poppins(
                                   fontSize: 15,
@@ -1092,7 +1002,17 @@ Future<String> _saveScanResult(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                nutritionalInfo?["protein"] ?? "0g",
+                                isHarmful ? "Yes" : "No",
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  color: isHarmful ? Colors.red : Colors.green,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                confidence.toUpperCase(),
                                 textAlign: TextAlign.left,
                                 style: GoogleFonts.poppins(
                                   fontSize: 15,
@@ -1100,30 +1020,20 @@ Future<String> _saveScanResult(
                                 ),
                               ),
                               SizedBox(height: 5),
-                              Text(
-                                nutritionalInfo?["fat"] ?? "0g",
-                                textAlign: TextAlign.left,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                nutritionalInfo?["carbs"] ?? "0g",
-                                textAlign: TextAlign.left,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                nutritionalInfo?["fiber"] ?? "0g",
-                                textAlign: TextAlign.left,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 15,
-                                  color: Colors.black,
+                              Container(
+                                width: 75,
+                                child: Expanded(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Text(
+                                      location,
+                                      textAlign: TextAlign.left,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -1135,8 +1045,8 @@ Future<String> _saveScanResult(
                                 width: 120,
                                 height: 120,
                                 child: CircularProgressIndicator(
-                                  value: score / 100,
-                                  color: _getScoreColor(score),
+                                  value: harmScale / 100,
+                                  color: _getHarmScaleColor(harmScale),
                                   strokeWidth: 8,
                                   backgroundColor: Color.fromRGBO(
                                     230,
@@ -1149,20 +1059,21 @@ Future<String> _saveScanResult(
                               Column(
                                 children: [
                                   Text(
-                                    score.toString(),
+                                    harmScale.toString(),
                                     style: GoogleFonts.poppins(
                                       fontSize: 30,
                                       fontWeight: FontWeight.w700,
-                                      color: _getScoreColor(score),
+                                      color: _getHarmScaleColor(harmScale),
                                       height: 1.0,
                                     ),
                                   ),
                                   Text(
-                                    "out of 100",
+                                    _getHarmScaleText(harmScale),
+                                    textAlign: TextAlign.center,
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: _getScoreColor(score),
+                                      fontWeight: FontWeight.w600,
+                                      color: _getHarmScaleColor(harmScale),
                                     ),
                                   ),
                                 ],
@@ -1171,15 +1082,114 @@ Future<String> _saveScanResult(
                           ),
                         ],
                       ),
-                      SizedBox(height: 20,),
+                      const SizedBox(height: 15),
+                      // Summary Section
                       Expanded(
                         child: SingleChildScrollView(
-                          child: Text(
-                            summary,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Analysis Summary:',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                summary,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                  height: 1.5,
+                                ),
+                              ),
+                              
+                              // Removal Instructions
+                              if (removalInstructions != null) ...[
+                                const SizedBox(height: 20),
+                                Text(
+                                  'Removal Instructions:',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                
+                                if (removalInstructions['professionalRecommended'] == true) ...[
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.red[200]!),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.warning, color: Colors.red[700], size: 20),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Professional remediation recommended',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.red[700],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                                
+                                if (removalInstructions['diyApproach'] != null) ...[
+                                  Text(
+                                    'DIY Approach:',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    removalInstructions['diyApproach'],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                                
+                                if (removalInstructions['whenToCallProfessionals'] != null) ...[
+                                  Text(
+                                    'When to Call Professionals:',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    removalInstructions['whenToCallProfessionals'],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ],
                           ),
                         ),
                       ),
@@ -1196,51 +1206,52 @@ Future<String> _saveScanResult(
     );
   }
 
- Widget _buildResultsActions() {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-      // Retake Button
-      GestureDetector(
-        onTap: _retakePhoto,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(50),
-          ),
-          child: Text(
-            'Retake',
-            style: GoogleFonts.poppins(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-      // Confirm Button
-      GestureDetector(
-        onTap: _confirmResults,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-          decoration: BoxDecoration(
-            color: const Color.fromRGBO(63, 114, 66, 1),
-            borderRadius: BorderRadius.circular(50),
-          ),
-          child: Text(
-            'Save Results',
-            style: GoogleFonts.poppins(
+  Widget _buildResultsActions() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        // Retake Button
+        GestureDetector(
+          onTap: _retakePhoto,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            decoration: BoxDecoration(
               color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Text(
+              'Retake',
+              style: GoogleFonts.poppins(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
-      ),
-    ],
-  );
-}
+        // Confirm Button
+        GestureDetector(
+          onTap: _confirmResults,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            decoration: BoxDecoration(
+              color: const Color.fromRGBO(26, 188, 156, 1),
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Text(
+              'Save Results',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildCaptureButton() {
     return Positioned(
       bottom: 50,
@@ -1265,7 +1276,7 @@ Future<String> _saveScanResult(
               border: Border.all(
                 color: _isProcessing
                     ? Colors.grey
-                    : Color.fromRGBO(63, 114, 66, 1),
+                    : Color.fromRGBO(26, 188, 156, 1),
                 width: 4,
               ),
             ),
@@ -1277,14 +1288,14 @@ Future<String> _saveScanResult(
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Color.fromRGBO(63, 114, 66, 1)
+                          Color.fromRGBO(26, 188, 156, 1),
                         ),
                       ),
                     )
                   : const FaIcon(
                       FontAwesomeIcons.camera,
                       size: 25,
-                      color: Color.fromRGBO(63, 114, 66, 1),
+                      color: Color.fromRGBO(26, 188, 156, 1),
                     ),
             ),
           ),
@@ -1315,7 +1326,7 @@ Future<String> _saveScanResult(
               ElevatedButton(
                 onPressed: _initializeCamera,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(63, 114, 66, 1),
+                  backgroundColor: const Color.fromRGBO(26, 188, 156, 1),
                 ),
                 child: Text(
                   'Retry',
@@ -1324,7 +1335,7 @@ Future<String> _saveScanResult(
               ),
             ] else ...[
               const CircularProgressIndicator(
-                color: Color.fromRGBO(63, 114, 66, 1)
+                color: Color.fromRGBO(26, 188, 156, 1),
               ),
               const SizedBox(height: 20),
               Text(
@@ -1337,8 +1348,6 @@ Future<String> _saveScanResult(
       ),
     );
   }
-
-  // Add test button for debugging (only in debug mode)
 }
 
 // Custom painter for grid overlay

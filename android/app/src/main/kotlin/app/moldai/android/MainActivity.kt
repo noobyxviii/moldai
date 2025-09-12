@@ -1,4 +1,4 @@
-package com.example.totsy
+package app.moldai.android
 
 import io.flutter.embedding.android.FlutterActivity
 

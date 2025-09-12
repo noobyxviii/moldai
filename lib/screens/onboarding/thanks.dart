@@ -21,7 +21,7 @@ class _OnboardingScreenState extends State<ThanksScreen> {
     final deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color.fromRGBO(243, 243, 243, 1),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(deviceWidth * 0.05),
@@ -89,7 +89,7 @@ class _OnboardingScreenState extends State<ThanksScreen> {
                   ),
                   SizedBox(height: 15),
                   Text(
-                    "Continue to start feeding\nyour baby the best.",
+                    "Continue to identify\nmold with confidence.",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 20,

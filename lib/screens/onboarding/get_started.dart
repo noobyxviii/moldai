@@ -22,27 +22,27 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
   final List<SlideData> slides = [
     SlideData(
       image: 'assets/visual_1.png',
-      title: 'Scan Baby Food Instantly',
+      title: 'Scan Mold Instantly',
       subtitle:
-          "Quickly check if a product is healthy and safe\nfor your little one with just a scan.",
+          "Take a quick photo to identify mold and\nreceive instant insights on its type and risk.",
     ),
     SlideData(
       image: 'assets/visual_2.png',
-      title: 'Trusted & Unbiased Results',
+      title: 'Accurate & Reliable Results',
       subtitle:
-          "Get clear, independent insights—no brand\ninfluence, only what's best for your baby.",
+          "Get clear, science-backed information about\npotential health hazards and exposure risks.",
     ),
     SlideData(
       image: 'assets/visual_3.png',
-      title: "Understand\nWhat's Inside",
+      title: "Learn How to\nHandle Mold Safely",
       subtitle:
-          "Understand ingredients, nutrition, and\nhow each food impacts your baby's health.",
+          "Receive step-by-step guidance on safe\nremoval and proper disposal methods.",
     ),
     SlideData(
       image: 'assets/visual_4.png',
-      title: 'Track Daily\nNutrition',
+      title: 'Protect Your\nHome & Health',
       subtitle:
-          'Monitor protein, carbs, fats, and vitamins\nto ensure balanced growth every day.',
+          'Stay informed about mold growth and\nprevent future issues for a safer living space.',
     ),
   ];
 

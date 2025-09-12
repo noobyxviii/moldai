@@ -90,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'All data deleted successfully',
                 style: GoogleFonts.poppins(),
               ),
-              backgroundColor: const Color.fromRGBO(63, 114, 66, 1),
+              backgroundColor: const Color.fromRGBO(26, 188, 156, 1),
             ),
           );
           
@@ -220,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const Icon(
                     FontAwesomeIcons.solidUser,
                     size: 20,
-                    color: Color.fromRGBO(63, 114, 66, 1),
+                    color: Color.fromRGBO(26, 188, 156, 1),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -228,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
-                      color: Color.fromRGBO(63, 114, 66, 1),
+                      color: Color.fromRGBO(26, 188, 156, 1),
                     ),
                   ),
                 ],
@@ -289,7 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   width: 35,
                                   height: 35,
                                   child: CircularProgressIndicator(
-                                    color: Color.fromRGBO(255, 125, 125, 1),
+                                    color: Color.fromRGBO(244, 67, 54, 1),
                                     strokeWidth: 3,
                                   ),
                                 )
@@ -297,7 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const Icon(
                                   FontAwesomeIcons.solidTrashCan,
                                   size: 35,
-                                  color: Color.fromRGBO(255, 125, 125, 1),
+                                  color: Color.fromRGBO(244, 67, 54, 1),
                                 ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +306,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Text(
                                     "Delete Data",
                                     style: GoogleFonts.poppins(
-                                      color: Color.fromRGBO(255, 125, 125, 1),
+                                      color: Color.fromRGBO(244, 67, 54, 1),
                                       fontSize: 15,
                                       fontWeight: FontWeight.w900,
                                     ),
@@ -314,7 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Text(
                                     "Deletes all progress & data\nfrom your device.",
                                     style: GoogleFonts.poppins(
-                                      color: Color.fromRGBO(255, 125, 125, 1),
+                                      color: Color.fromRGBO(244, 67, 54, 1),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -342,7 +342,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "About Totsy",
+                              "About MoldAI",
                               style: GoogleFonts.poppins(
                                 color: Colors.black,
                                 fontSize: 18,
@@ -351,7 +351,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              "Get peace of mind with Totsy. Share and receive real feedback on baby food, helping parents make safer, healthier choices for their little ones.",
+                              "Get peace of mind with MoldAI. Simply scan mold to get instant insights on potential health concerns and learn the safest, most effective ways to remove it.",
                               style: GoogleFonts.poppins(
                                 color: Colors.grey[600],
                                 fontSize: 14,
