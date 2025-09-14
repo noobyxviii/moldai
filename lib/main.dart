@@ -60,7 +60,7 @@ Future<void> initializeRevenueCat() async {
     } else if (Platform.isIOS) {
       // Get this from RevenueCat Dashboard -> Project Settings -> API Keys -> App Store
       await Purchases.configure(
-        PurchasesConfiguration("appl_YBeVIonpuhySbgozwVJCoxpftwQ")
+        PurchasesConfiguration("appl_NKqOwmRYVTFWgLHEPTYoerjaCxr")
           ..appUserID = userId.isNotEmpty ? userId : null,
       );
     } else {
