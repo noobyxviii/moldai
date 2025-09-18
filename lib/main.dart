@@ -123,7 +123,7 @@ class MyApp extends StatelessWidget {
         progressIndicatorTheme: ProgressIndicatorThemeData(color: Colors.black),
       ),
       debugShowCheckedModeBanner: false,
-      home: const OnboardingFlow(),
+      home: const AppFlow(),
     );
   }
 }
