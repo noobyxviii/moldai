@@ -285,10 +285,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // New method to build statistics cards
-  Widget _buildStatisticsCard(String value, String label, IconData icon, Color color) {
+  Widget _buildStatisticsCard(BuildContext context, String value, String label, IconData icon, Color color) {
+    double deviceWidth = MediaQuery.of(context).size.width;
     return Container(
       height: 80,
-      width: 120,
+      width: (deviceWidth * 0.85) / 3,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         color: Colors.white,
@@ -367,24 +368,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 });
               },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.house,
-                    size: 20,
-                    color: Color.fromRGBO(26, 188, 156, 1),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Home",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+              child: Container(
+                color: Colors.transparent,
+                width: 100, 
+                height: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      FontAwesomeIcons.house,
+                      size: 20,
                       color: Color.fromRGBO(26, 188, 156, 1),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      "Home",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Color.fromRGBO(26, 188, 156, 1),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             GestureDetector(
@@ -398,24 +404,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 });
               },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.bacterium,
-                    size: 20,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "MoldAI",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+              child: Container(
+                color: Colors.transparent,
+                width: 100, 
+                height: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      FontAwesomeIcons.bacterium,
+                      size: 20,
                       color: Colors.black,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      "MoldAI",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             GestureDetector(
@@ -429,24 +441,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 });
               },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.solidUser,
-                    size: 20,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Profile",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+              child: Container(
+                color: Colors.transparent,
+                width: 100, 
+                height: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      FontAwesomeIcons.solidUser,
+                      size: 20,
                       color: Colors.black,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      "Profile",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -509,21 +526,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         )
                       else
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             _buildStatisticsCard(
+                              context,
                               _scanStatistics['totalScans'].toString(),
                               "Total Scans",
                               FontAwesomeIcons.bacterium,
                               Color.fromRGBO(26, 188, 156, 1),
                             ),
                             _buildStatisticsCard(
+                              context,
                               _scanStatistics['highRiskScans'].toString(),
                               "High Risk",
                               FontAwesomeIcons.triangleExclamation,
                               Color.fromRGBO(244, 67, 54, 1),
                             ),
                             _buildStatisticsCard(
+                              context,
                               ((_scanStatistics['totalScans']! - _scanStatistics['highRiskScans']!)).toString(),
                               "Safe Scans",
                               FontAwesomeIcons.shieldHalved,

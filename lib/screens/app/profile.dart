@@ -161,24 +161,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   );
                 });
               },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.house,
-                    size: 20,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Home",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+              child: Container(
+                color: Colors.transparent,
+                width: 100, 
+                height: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      FontAwesomeIcons.house,
+                      size: 20,
                       color: Colors.black,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      "Home",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             GestureDetector(
@@ -192,46 +197,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   );
                 });
               },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.magnifyingGlass,
-                    size: 20,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Scan",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+              child: Container(
+                color: Colors.transparent,
+                width: 100, 
+                height: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      FontAwesomeIcons.bacterium,
+                      size: 20,
                       color: Colors.black,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      "MoldAI",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             GestureDetector(
               onTap: () { HapticFeedback.lightImpact();},
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.solidUser,
-                    size: 20,
-                    color: Color.fromRGBO(26, 188, 156, 1),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Profile",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
+              child: Container(
+                color: Colors.transparent,
+                width: 100, 
+                height: 100,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      FontAwesomeIcons.solidUser,
+                      size: 20,
                       color: Color.fromRGBO(26, 188, 156, 1),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      "Profile",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Color.fromRGBO(26, 188, 156, 1),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

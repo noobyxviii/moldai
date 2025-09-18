@@ -96,7 +96,7 @@ class _OnboardingScreenState extends State<ThanksScreen> {
                   ),
                   SizedBox(height: 25),
                   Text(
-                    "Continue to help make your home\nsafer for your family.",
+                    "Press continue to help make your home\nsafer for your family.",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 18,

@@ -295,7 +295,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     if (_remoteConfigFreeTrialEnabled) {
       return "3-day free trial included";
     } else {
-      return "Try for 7 days";
+      return "Try for 7 days, billed weekly";
     }
   }
 
@@ -621,25 +621,55 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           ),
                         ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "${_getYearlyPrice()} per year",
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  if (_remoteConfigFreeTrialEnabled) Text(
+                                    "\$49.99 ",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color.fromRGBO(130, 130, 130, 1),
+                                      decoration: TextDecoration.lineThrough
+                                    ),
+                                  ),
+                                  Text(
+                                    _remoteConfigFreeTrialEnabled == false ? "Yearly Plan" : "${_getYearlyPrice()} per year",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                _remoteConfigFreeTrialEnabled == false ? "\$19.99/year, billed annually" : "Billed yearly",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color.fromRGBO(130, 140, 130, 1),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (isWeeklySelected == false) Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
                               color: Colors.black,
                             ),
-                          ),
-                          Text(
-                            "Billed yearly",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Color.fromRGBO(130, 140, 130, 1),
-                            ),
-                          ),
+                            child: Center(
+                              child: FaIcon(FontAwesomeIcons.check, 
+                                color: Colors.white, size: 10),
+                              ),
+                          )
                         ],
                       ),
                     ),
@@ -674,25 +704,42 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           ),
                         ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "${_getWeeklyPrice()} per week",
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _remoteConfigFreeTrialEnabled == false ? "Weekly Plan" : "${_getWeeklyPrice()} per week",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Text(
+                                _getWeeklySubtitle(),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color.fromRGBO(130, 140, 130, 1),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (isWeeklySelected == true) Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
                               color: Colors.black,
                             ),
-                          ),
-                          Text(
-                            _getWeeklySubtitle(),
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Color.fromRGBO(130, 140, 130, 1),
-                            ),
-                          ),
+                            child: Center(
+                              child: FaIcon(FontAwesomeIcons.check, 
+                                color: Colors.white, size: 10),
+                              ),
+                          )
                         ],
                       ),
                     ),
