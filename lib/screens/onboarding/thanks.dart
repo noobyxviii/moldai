@@ -62,22 +62,8 @@ class _OnboardingScreenState extends State<ThanksScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/thanks_visual.png', width: 200),
-                  SizedBox(height: 15),
                   Text(
-                    "All Done!",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      fontSize: 35,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                      height: 1.2,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Text(
-                    "Thank you for\ntrusting us.",
+                    "Did you know?",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 35,
@@ -87,13 +73,34 @@ class _OnboardingScreenState extends State<ThanksScreen> {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 25),
                   Text(
-                    "Continue to identify\nmold with confidence.",
+                            "🫁",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 150,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                  SizedBox(height: 25),
+                  Text(
+                    "Molds commonly found in homes release invisible toxins that can damage your lungs and even your brain.",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      height: 1.2,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  SizedBox(height: 25),
+                  Text(
+                    "Continue to help make your home\nsafer for your family.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
                       color: Colors.black,
                       height: 1.2,
                       letterSpacing: -0.5,
