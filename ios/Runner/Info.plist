@@ -27,9 +27,7 @@
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>NSCameraUsageDescription</key>
-		<string>This app needs access to camera to scan and analyze food for nutrition information.</string>
-		<key>NSMicrophoneUsageDescription</key>
-		<string>This app needs access to microphone for camera functionality.</string>
+		<string>This app needs access to camera to scan and analyze mold specimens</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UILaunchStoryboardName</key>

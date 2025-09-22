@@ -76,6 +76,7 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
         backCamera,
         ResolutionPreset.high,
         imageFormatGroup: ImageFormatGroup.jpeg,
+        enableAudio: false
       );
 
       await _cameraController!.initialize();
