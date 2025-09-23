@@ -76,7 +76,7 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
         backCamera,
         ResolutionPreset.high,
         imageFormatGroup: ImageFormatGroup.jpeg,
-        enableAudio: false
+        enableAudio: false,
       );
 
       await _cameraController!.initialize();
@@ -108,47 +108,31 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
     }
 
     // Check camera controller
-    if (_cameraController == null) {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
       if (kDebugMode) {
-        print("❌ Camera controller is null");
+        print("❌ Camera not ready");
       }
       setState(() {
-        _errorMessage = "Camera controller is null";
-        _debugMessage = "Camera controller not initialized";
-      });
-      return;
-    }
-
-    if (!_cameraController!.value.isInitialized) {
-      if (kDebugMode) {
-        print("❌ Camera is not initialized");
-      }
-      setState(() {
-        _errorMessage = "Camera is not initialized";
-        _debugMessage = "Camera not ready";
+        _errorMessage = "Camera is not ready";
       });
       return;
     }
 
     if (kDebugMode) {
-      print("✅ All checks passed, starting capture process");
+      print("✅ Starting capture process");
     }
-    
+
     setState(() {
       _isProcessing = true;
       _errorMessage = null;
-      _debugMessage = "Capturing image...";
     });
-
-    XFile? capturedImage;
-    String? permanentImagePath;
 
     try {
       // Capture image
       if (kDebugMode) {
         print("📸 Taking picture...");
       }
-      capturedImage = await _cameraController!.takePicture();
+      final XFile capturedImage = await _cameraController!.takePicture();
       if (kDebugMode) {
         print("✅ Picture taken: ${capturedImage.path}");
       }
@@ -156,85 +140,36 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
       // Add haptic feedback
       HapticFeedback.mediumImpact();
 
-      setState(() {
-        _debugMessage = "Image captured, copying to permanent location...";
-      });
-
-      // Immediately copy the image to a permanent location
-      final appDir = await getApplicationDocumentsDirectory();
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      permanentImagePath = '${appDir.path}/temp_scan_$timestamp.jpg';
-
-      // Ensure source file exists
-      final sourceFile = File(capturedImage.path);
-      if (!await sourceFile.exists()) {
-        throw Exception("Captured image file does not exist at ${capturedImage.path}");
-      }
-
-      // Copy to permanent location immediately
-      final permanentFile = File(permanentImagePath);
-      await sourceFile.copy(permanentImagePath);
-
-      if (!await permanentFile.exists()) {
-        throw Exception("Failed to create permanent copy of image");
-      }
-
-      final fileSize = await permanentFile.length();
-      if (kDebugMode) {
-        print("📁 Permanent image file size: $fileSize bytes at $permanentImagePath");
-      }
-
-      setState(() {
-        _debugMessage = "Image saved, analyzing mold...";
-      });
-
-      // Send the permanent file for analysis
+      // Send for analysis
       if (kDebugMode) {
         print("🌐 Sending to API...");
       }
-      final results = await _analyzeMold(permanentFile);
+      final results = await _analyzeMold(File(capturedImage.path));
       if (kDebugMode) {
         print("✅ API response received");
       }
 
-      // Save the scan result using the permanent image path
-      final finalImagePath = await _saveScanResult(results, permanentImagePath);
+      // Save the scan result
+      final savedImagePath = await _saveScanResult(results, capturedImage.path);
 
       setState(() {
         _analysisResults = results;
-        _capturedImagePath = finalImagePath;
+        _capturedImagePath = savedImagePath;
         _showResults = true;
         _isProcessing = false;
-        _debugMessage = "Analysis completed successfully";
       });
 
       if (kDebugMode) {
         print("✅ Analysis completed and UI updated");
       }
-
     } catch (e) {
       if (kDebugMode) {
         print("❌ Error in capture and analyze: $e");
-      }
-      
-      // Clean up temporary file if it was created
-      if (permanentImagePath != null) {
-        try {
-          final tempFile = File(permanentImagePath);
-          if (await tempFile.exists()) {
-            await tempFile.delete();
-          }
-        } catch (cleanupError) {
-          if (kDebugMode) {
-            print("Warning: Failed to cleanup temp file: $cleanupError");
-          }
-        }
       }
 
       setState(() {
         _errorMessage = 'Failed to analyze mold: ${e.toString()}';
         _isProcessing = false;
-        _debugMessage = "Error: $e";
       });
     }
   }
@@ -248,11 +183,13 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
         print("🔗 Connecting to: $cloudflareWorkerUrl");
       }
 
-      // Validate image file first
-      if (!await imageFile.exists()) {
-        throw Exception('Image file does not exist at path: ${imageFile.path}');
-      }
+      // Create multipart request
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse(cloudflareWorkerUrl),
+      );
 
+      // Add image file
       final imageBytes = await imageFile.readAsBytes();
       if (kDebugMode) {
         print("📊 Image size: ${imageBytes.length} bytes");
@@ -269,99 +206,54 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
         );
       }
 
-      // Validate image format by checking magic bytes
-      String imageFormat = 'unknown';
-      if (imageBytes.length >= 2) {
-        if (imageBytes[0] == 0xFF && imageBytes[1] == 0xD8) {
-          imageFormat = 'JPEG';
-        } else if (imageBytes.length >= 8 &&
-            imageBytes[0] == 0x89 &&
-            imageBytes[1] == 0x50 &&
-            imageBytes[2] == 0x4E &&
-            imageBytes[3] == 0x47) {
-          imageFormat = 'PNG';
-        }
-      }
-      if (kDebugMode) {
-        print("📷 Image format detected: $imageFormat");
-      }
+      final multipartFile = http.MultipartFile.fromBytes(
+        'image',
+        imageBytes,
+        filename: 'mold_image.jpg',
+      );
+      request.files.add(multipartFile);
 
-      // Test connection first
-      try {
-        final testResponse = await http
-            .get(Uri.parse(cloudflareWorkerUrl))
-            .timeout(const Duration(seconds: 5));
-        if (kDebugMode) {
-          print("🌐 Test connection status: ${testResponse.statusCode}");
-        }
-        if (kDebugMode) {
-          print("🌐 Test response body: ${testResponse.body}");
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print("⚠️ Test connection failed: $e");
-        }
-      }
-
-      // Method 1: Try multipart/form-data (original approach)
+      // Log request details
       if (kDebugMode) {
-        print("📤 Trying multipart/form-data request...");
-      }
-      try {
-        final multipartResult = await _sendMultipartRequest(
-          cloudflareWorkerUrl,
-          imageBytes,
+        print(
+          "📋 Request files: ${request.files.map((f) => '${f.field}: ${f.filename} (${f.length} bytes)').toList()}",
         );
-        return multipartResult;
-      } catch (e) {
-        if (kDebugMode) {
-          print("❌ Multipart request failed: $e");
-        }
       }
 
-      // Method 2: Try Base64 encoded JSON request
+      // Send request with timeout
+      final streamedResponse = await request.send().timeout(
+        const Duration(seconds: 30),
+      );
+
+      final response = await http.Response.fromStream(streamedResponse);
+
       if (kDebugMode) {
-        print("📤 Trying Base64 JSON request...");
-      }
-      try {
-        final base64Result = await _sendBase64Request(
-          cloudflareWorkerUrl,
-          imageBytes,
-        );
-        return base64Result;
-      } catch (e) {
-        if (kDebugMode) {
-          print("❌ Base64 request failed: $e");
-        }
+        print("📥 Response status: ${response.statusCode}");
+        print("📄 Response body length: ${response.body.length}");
       }
 
-      // Method 3: Try simple JSON with smaller image
-      if (kDebugMode) {
-        print("📤 Trying compressed Base64 request...");
-      }
-      try {
-        // Compress image if it's too large
-        Uint8List compressedBytes = imageBytes;
-        if (imageBytes.length > 1024 * 1024) {
-          // 1MB
+      if (response.statusCode == 200) {
+        try {
+          final Map<String, dynamic> result = json.decode(response.body);
           if (kDebugMode) {
-            print("🗜️ Compressing large image...");
+            print("✅ JSON parsed successfully");
           }
-          compressedBytes = imageBytes; // You might want to implement actual compression here
+          return result;
+        } catch (e) {
+          if (kDebugMode) {
+            print("❌ JSON parsing failed: $e");
+          }
+          throw Exception('Invalid JSON response: ${e.toString()}');
         }
-
-        final compressedResult = await _sendBase64Request(
-          cloudflareWorkerUrl,
-          compressedBytes,
-        );
-        return compressedResult;
-      } catch (e) {
-        if (kDebugMode) {
-          print("❌ Compressed request failed: $e");
-        }
+      } else if (response.statusCode == 429) {
         throw Exception(
-          'All request methods failed. Last error: ${e.toString()}',
+          'Too many requests. Please wait a moment and try again.',
         );
+      } else {
+        if (kDebugMode) {
+          print("❌ API error: ${response.statusCode} - ${response.body}");
+        }
+        throw Exception('API Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -371,136 +263,38 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
     }
   }
 
-  Future<Map<String, dynamic>> _sendMultipartRequest(
-    String url,
-    Uint8List imageBytes,
-  ) async {
-    final request = http.MultipartRequest('POST', Uri.parse(url));
-
-    // Add headers
-    request.headers['Content-Type'] = 'multipart/form-data';
-
-    // Add image file
-    final multipartFile = http.MultipartFile.fromBytes(
-      'image',
-      imageBytes,
-      filename: 'mold_image.jpg',
-    );
-    request.files.add(multipartFile);
-
-    // Log request details
-    if (kDebugMode) {
-      print("📋 Request files: ${request.files.map((f) => '${f.field}: ${f.filename} (${f.length} bytes)').toList()}");
-    }
-
-    // Send request with timeout
-    final streamedResponse = await request.send().timeout(
-      const Duration(seconds: 30),
-    );
-
-    final response = await http.Response.fromStream(streamedResponse);
-    return _processResponse(response);
-  }
-
-  Future<Map<String, dynamic>> _sendBase64Request(
-    String url,
-    Uint8List imageBytes,
-  ) async {
-    final base64Image = base64Encode(imageBytes);
-    if (kDebugMode) {
-      print("📊 Base64 image length: ${base64Image.length} characters");
-    }
-
-    final requestBody = {
-      'image': base64Image,
-      'imageFormat': 'jpeg',
-    };
-
-    final response = await http
-        .post(
-          Uri.parse(url),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(requestBody),
-        )
-        .timeout(const Duration(seconds: 30));
-
-    return _processResponse(response);
-  }
-
-  Map<String, dynamic> _processResponse(http.Response response) {
-    if (kDebugMode) {
-      print("📥 Response status: ${response.statusCode}");
-    }
-    if (kDebugMode) {
-      print("📄 Response headers: ${response.headers}");
-    }
-    if (kDebugMode) {
-      print("📄 Response body length: ${response.body.length}");
-    }
-
-    // Log first 500 characters of response for debugging
-    final responsePreview = response.body.length > 500
-        ? "${response.body.substring(0, 500)}..."
-        : response.body;
-    if (kDebugMode) {
-      print("📄 Response preview: $responsePreview");
-    }
-
-    if (response.statusCode == 200) {
-      try {
-        final Map<String, dynamic> result = json.decode(response.body);
-        if (kDebugMode) {
-          print("✅ JSON parsed successfully");
-        }
-        return result;
-      } catch (e) {
-        if (kDebugMode) {
-          print("❌ JSON parsing failed: $e");
-        }
-        if (kDebugMode) {
-          print("Raw response: ${response.body}");
-        }
-        throw Exception('Invalid JSON response: ${e.toString()}');
-      }
-    } else if (response.statusCode == 429) {
-      throw Exception('Too many requests. Please wait a moment and try again.');
-    } else {
-      if (kDebugMode) {
-        print("❌ API error: ${response.statusCode} - ${response.body}");
-      }
-      throw Exception('API Error ${response.statusCode}: ${response.body}');
-    }
-  }
-
   // NEW: Method to update scan statistics
   Future<void> _updateScanStatistics(int harmScale) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Get current total scans count
       final totalScans = prefs.getInt('total_scans_count') ?? 0;
-      
+
       // Get current high-risk scans count (75+ rating)
       final highRiskScans = prefs.getInt('high_risk_scans_count') ?? 0;
-      
+
       // Increment total scans
       final newTotalScans = totalScans + 1;
       await prefs.setInt('total_scans_count', newTotalScans);
-      
+
       // Increment high-risk scans if harm scale is 75 or higher
       if (harmScale >= 75) {
         final newHighRiskScans = highRiskScans + 1;
         await prefs.setInt('high_risk_scans_count', newHighRiskScans);
-        
+
         if (kDebugMode) {
-          print("📊 Updated statistics: Total: $newTotalScans, High-Risk: $newHighRiskScans");
+          print(
+            "📊 Updated statistics: Total: $newTotalScans, High-Risk: $newHighRiskScans",
+          );
         }
       } else {
         if (kDebugMode) {
-          print("📊 Updated statistics: Total: $newTotalScans, High-Risk: $highRiskScans (no change)");
+          print(
+            "📊 Updated statistics: Total: $newTotalScans, High-Risk: $highRiskScans (no change)",
+          );
         }
       }
-      
     } catch (e) {
       if (kDebugMode) {
         print("❌ Error updating scan statistics: $e");
@@ -513,22 +307,16 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
   Future<Map<String, int>> getScanStatistics() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       final totalScans = prefs.getInt('total_scans_count') ?? 0;
       final highRiskScans = prefs.getInt('high_risk_scans_count') ?? 0;
-      
-      return {
-        'totalScans': totalScans,
-        'highRiskScans': highRiskScans,
-      };
+
+      return {'totalScans': totalScans, 'highRiskScans': highRiskScans};
     } catch (e) {
       if (kDebugMode) {
         print("❌ Error getting scan statistics: $e");
       }
-      return {
-        'totalScans': 0,
-        'highRiskScans': 0,
-      };
+      return {'totalScans': 0, 'highRiskScans': 0};
     }
   }
 
@@ -538,7 +326,7 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('total_scans_count');
       await prefs.remove('high_risk_scans_count');
-      
+
       if (kDebugMode) {
         print("🔄 Scan statistics reset");
       }
@@ -717,7 +505,8 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
 
   Color _getHarmScaleColor(int harmScale) {
     if (harmScale >= 80) return const Color(0xFFD32F2F); // Red - Dangerous
-    if (harmScale >= 60) return const Color(0xFFFF5722); // Deep Orange - High Risk
+    if (harmScale >= 60)
+      return const Color(0xFFFF5722); // Deep Orange - High Risk
     if (harmScale >= 40) return const Color(0xFFF57C00); // Orange - Medium Risk
     if (harmScale >= 20) return const Color(0xFFFBC02D); // Yellow - Low Risk
     return const Color(0xFF4CAF50); // Green - Minimal Risk
@@ -868,8 +657,11 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
     final confidence = _analysisResults!['confidence'] ?? 'low';
     final location = _analysisResults!['location'] ?? 'Unknown';
     final summary = _analysisResults!['summary'] ?? 'Analysis completed';
-    final healthRisks = List<String>.from(_analysisResults!['healthRisks'] ?? []);
-    final removalInstructions = _analysisResults!['removalInstructions'] as Map<String, dynamic>?;
+    final healthRisks = List<String>.from(
+      _analysisResults!['healthRisks'] ?? [],
+    );
+    final removalInstructions =
+        _analysisResults!['removalInstructions'] as Map<String, dynamic>?;
 
     return Container(
       width: double.infinity,
@@ -885,10 +677,7 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Image.asset(
-                            'assets/logo_transparent.png',
-                            height: 30,
-                          ),
+                  Image.asset('assets/logo_transparent.png', height: 30),
                 ],
               ),
               const SizedBox(height: 25),
@@ -1107,7 +896,7 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
                                   height: 1.5,
                                 ),
                               ),
-                              
+
                               // Removal Instructions
                               if (removalInstructions != null) ...[
                                 const SizedBox(height: 20),
@@ -1120,18 +909,25 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                
-                                if (removalInstructions['professionalRecommended'] == true) ...[
+
+                                if (removalInstructions['professionalRecommended'] ==
+                                    true) ...[
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
                                       color: Colors.red[50],
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Colors.red[200]!),
+                                      border: Border.all(
+                                        color: Colors.red[200]!,
+                                      ),
                                     ),
                                     child: Row(
                                       children: [
-                                        Icon(Icons.warning, color: Colors.red[700], size: 20),
+                                        Icon(
+                                          Icons.warning,
+                                          color: Colors.red[700],
+                                          size: 20,
+                                        ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
@@ -1148,8 +944,9 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                 ],
-                                
-                                if (removalInstructions['diyApproach'] != null) ...[
+
+                                if (removalInstructions['diyApproach'] !=
+                                    null) ...[
                                   Text(
                                     'DIY Approach:',
                                     style: GoogleFonts.poppins(
@@ -1169,8 +966,9 @@ class _MoldScannerScreenState extends State<MoldScannerScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                 ],
-                                
-                                if (removalInstructions['whenToCallProfessionals'] != null) ...[
+
+                                if (removalInstructions['whenToCallProfessionals'] !=
+                                    null) ...[
                                   Text(
                                     'When to Call Professionals:',
                                     style: GoogleFonts.poppins(
